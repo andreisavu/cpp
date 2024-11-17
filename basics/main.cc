@@ -1,7 +1,8 @@
 #include "basics.h"
 #include <iostream>
 
-int main() {
+int main()
+{
     // Demonstrate add function
     int sum = add(5, 3);
     std::cout << "5 + 3 = " << sum << std::endl;
@@ -11,4 +12,4 @@ int main() {
     std::cout << greeting << std::endl;
 
     return 0;
-} 
+}
