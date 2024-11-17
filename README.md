@@ -1,2 +1,1 @@
-# cpp
-Deep dive on C++ for algos and services
+A back to basics adventure with C++ and Bazel on algorithms, file formats, services, and more.
