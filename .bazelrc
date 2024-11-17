@@ -1,0 +1,13 @@
+# Build options
+build --incompatible_strict_action_env
+build --enable_platform_specific_config
+
+# Use C++17 by default
+build --cxxopt='-std=c++17'
+
+# Show detailed errors
+build --verbose_failures
+
+# Test options
+test --test_output=errors
+test --test_verbose_timeout_warnings 
