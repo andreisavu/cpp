@@ -1,20 +1,22 @@
 cc_library(
     name = "all",
-    srcs = ["main.cpp"],
-    hdrs = [],
+    srcs = ["basics.cpp"],
+    hdrs = ["basics.h"],
     visibility = ["//visibility:public"],
 )
 
 cc_binary(
     name = "main",
+    srcs = ["main.cpp"],
     deps = [":all"],
 )
 
 cc_test(
     name = "test",
-    srcs = ["main_test.cpp"],
+    srcs = ["basics_test.cpp"],
     deps = [
         ":all",
         "@com_google_googletest//:gtest_main",
     ],
+    size = "small",
 ) 

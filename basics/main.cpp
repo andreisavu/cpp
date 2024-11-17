@@ -1,13 +1,5 @@
-#include <string>
+#include "basics.h"
 #include <iostream>
-
-int add(int a, int b) {
-    return a + b;
-}
-
-std::string greet(const std::string& name) {
-    return "Hello, " + name + "!";
-}
 
 int main() {
     // Demonstrate add function
