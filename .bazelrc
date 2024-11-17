@@ -11,3 +11,5 @@ build --verbose_failures
 # Test options
 test --test_output=errors
 test --test_verbose_timeout_warnings
+
+common --enable_bzlmod
