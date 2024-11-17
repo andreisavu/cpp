@@ -1,7 +1,7 @@
 cc_library(
     name = "all",
-    srcs = ["basics.cc"],
-    hdrs = ["basics.h"],
+    srcs = glob(["*.cc"], exclude=["main.cc", "*_test.cc"]),
+    hdrs = glob(["*.h"]),
     visibility = ["//visibility:public"],
 )
 
@@ -13,10 +13,10 @@ cc_binary(
 
 cc_test(
     name = "test",
-    srcs = ["basics_test.cc"],
+    srcs = glob(["*_test.cc"]),
     deps = [
         ":all",
         "@googletest//:gtest_main",
     ],
     size = "small",
-) 
+)
