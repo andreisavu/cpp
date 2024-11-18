@@ -6,10 +6,10 @@
 // https://github.com/apache/parquet-format/tree/master
 
 /**
- * The primitive types supported by Parquet.  These types are intended to be used in
+ * The atomic types supported by Parquet.  These types are intended to be used in
  * combination with the encodings to control the on disk storage format.
  */
-enum class PrimitiveType
+enum class AtomicType
 {
     BOOLEAN,
     INT32,
