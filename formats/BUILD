@@ -7,7 +7,7 @@ cc_library(
             "*_test.cc",
         ],
     ),
-    hdrs = glob(["*.h"]),
+    hdrs = glob(["*.hpp"]),
     visibility = ["//visibility:public"],
 )
 

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "parquet.h"
+#include "parquet.hpp"
 
 TEST(BasicTest, AtomicTypeEnum)
 {
