@@ -100,3 +100,28 @@ TEST(SimpleListTest, Sort)
     EXPECT_EQ(list.pop_front(), 2);
     EXPECT_EQ(list.pop_front(), 3);
 }
+
+TEST(SimpleListTest, Transform)
+{
+    SimpleList<int> list;
+    list.push_front(1);
+    list.push_front(2);
+    list.push_front(3);
+
+    list.transform([](int x) { return x * 2; });
+
+    EXPECT_EQ(list.pop_front(), 6);
+    EXPECT_EQ(list.pop_front(), 4);
+    EXPECT_EQ(list.pop_front(), 2);
+}
+
+TEST(SimpleListTest, Filter)
+{
+    SimpleList<int> list;
+    list.push_front(1);
+    list.push_front(2);
+    list.push_front(3);
+    list.filter([](int x) { return x % 2 == 0; });
+    EXPECT_EQ(list.size(), 1);
+    EXPECT_EQ(list.pop_front(), 2);
+}

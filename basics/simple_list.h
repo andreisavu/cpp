@@ -12,6 +12,12 @@ public:
         : value(value), next(std::move(next)) {}
     ~SimpleNode() = default;
 
+    SimpleNode(SimpleNode const &other) = delete;
+    SimpleNode &operator=(SimpleNode const &other) = delete;
+
+    SimpleNode(SimpleNode &&other) noexcept = delete;
+    SimpleNode &operator=(SimpleNode &&other) noexcept = delete;
+
     T value;
     std::unique_ptr<SimpleNode<T>> next;
 };
@@ -86,6 +92,10 @@ public:
 
     void reverse() noexcept;
     void sort() noexcept;
+
+    void filter(std::function<bool(T)> const &func) noexcept;
+    void transform(std::function<T(T)> const &func) noexcept;
+
     void clear() noexcept;
 
     int size() const noexcept;
@@ -177,6 +187,44 @@ void SimpleList<T>::sort() noexcept
         sorted_head = _insert_sorted(std::move(sorted_head), value);
     }
     _head = std::move(sorted_head);
+}
+
+template <typename T>
+void SimpleList<T>::filter(std::function<bool(T)> const &func) noexcept
+{
+    if (_head == nullptr)
+    {
+        return; // List is empty, nothing to filter
+    }
+    auto current = _head.get();
+    while (current->next != nullptr)
+    {
+        if (!func(current->next->value))
+        {
+            current->next = std::move(current->next->next);
+            --_size;
+        }
+        else
+        {
+            current = current->next.get();
+        }
+    }
+    if (!func(_head->value))
+    {
+        _head = std::move(_head->next);
+        --_size;
+    }
+}
+
+template <typename T>
+void SimpleList<T>::transform(std::function<T(T)> const &func) noexcept
+{
+    auto current = _head.get();
+    while (current != nullptr)
+    {
+        current->value = func(current->value);
+        current = current->next.get();
+    }
 }
 
 template <typename T>
