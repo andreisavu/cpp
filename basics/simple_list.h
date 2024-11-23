@@ -144,17 +144,38 @@ void SimpleList<T>::clear() noexcept
 template <typename T>
 void SimpleList<T>::reverse() noexcept
 {
-    std::unique_ptr<SimpleNode<T>> prev = nullptr;
+    if (_size <= 1) 
+    {
+        return; // Already reversed and sorted
+    }
+
+    std::unique_ptr<SimpleNode<T>> previous = nullptr;
     std::unique_ptr<SimpleNode<T>> current = std::move(_head);
+
+    bool found_unsorted_pair = false;
+    T last_value;  // Keep track of the previous value for sorting check
+
     while (current != nullptr)
     {
+        // Store the current value before moving pointers
+        T current_value = current->value;
+
+        // If we have a previous value, check sorting
+        if (previous != nullptr && !found_unsorted_pair)
+        {
+            found_unsorted_pair = (last_value < current_value);
+        }
+        last_value = current_value;
+
+        // Perform the reversal
         std::unique_ptr<SimpleNode<T>> next = std::move(current->next);
-        current->next = std::move(prev);
-        prev = std::move(current);
+        current->next = std::move(previous);
+        previous = std::move(current);
         current = std::move(next);
     }
-    _head = std::move(prev);
-    _sorted = false;
+    
+    _head = std::move(previous);
+    _sorted = !found_unsorted_pair;
 }
 
 template <typename T>

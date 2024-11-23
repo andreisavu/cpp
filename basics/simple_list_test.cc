@@ -173,3 +173,16 @@ TEST(SimpleListTest, SortedStateAfterOperations)
     list.clear();
     EXPECT_TRUE(list.sorted());
 }
+
+TEST(SimpleListTest, ReverseTwice)
+{
+    SimpleList<int> list;
+    list.push_front(3);
+    list.push_front(2);
+    list.push_front(1);
+    EXPECT_TRUE(list.sorted());
+    list.reverse();
+    EXPECT_FALSE(list.sorted());
+    list.reverse();
+    EXPECT_TRUE(list.sorted());
+}
