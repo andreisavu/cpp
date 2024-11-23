@@ -108,7 +108,8 @@ TEST(SimpleListTest, Transform)
     list.push_front(2);
     list.push_front(3);
 
-    list.transform([](int x) { return x * 2; });
+    list.transform([](int x)
+                   { return x * 2; });
 
     EXPECT_EQ(list.pop_front(), 6);
     EXPECT_EQ(list.pop_front(), 4);
@@ -121,7 +122,52 @@ TEST(SimpleListTest, Filter)
     list.push_front(1);
     list.push_front(2);
     list.push_front(3);
-    list.filter([](int x) { return x % 2 == 0; });
+
+    list.filter([](int x)
+                { return x % 2 == 0; });
+
     EXPECT_EQ(list.size(), 1);
     EXPECT_EQ(list.pop_front(), 2);
+}
+
+TEST(SimpleListTest, SortedStateAfterOperations)
+{
+    SimpleList<int> list;
+    EXPECT_TRUE(list.sorted());
+
+    list.push_front(3);
+    EXPECT_TRUE(list.sorted());
+
+    list.push_front(2);
+    list.push_front(1);
+    EXPECT_TRUE(list.sorted());
+
+    list.push_front(5);
+    EXPECT_FALSE(list.sorted());
+    list.transform([](int x)
+                   { if (x == 5) { return 0; }
+                     return x; });
+    EXPECT_TRUE(list.sorted());
+
+    list.filter([](int x)
+                { return x % 2 == 0; });
+    EXPECT_TRUE(list.sorted());
+
+    list.push_front(10);
+    EXPECT_FALSE(list.sorted());
+
+    list.filter([](int x)
+                { return x != 10; });
+    EXPECT_TRUE(list.sorted());
+
+    list.push_front(15);
+    EXPECT_FALSE(list.sorted());
+
+    // Popping the front element always makes the list unsorted
+    // because we there is no way to know if the list was sorted before popping
+    list.pop_front();
+    EXPECT_FALSE(list.sorted());
+
+    list.clear();
+    EXPECT_TRUE(list.sorted());
 }

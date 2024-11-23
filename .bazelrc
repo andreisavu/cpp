@@ -20,7 +20,7 @@ build --verbose_failures                 # Show detailed errors
 build --worker_verbose                   # Verbose worker output for debugging
 
 # Test options
-test --test_output=errors
+test --test_output=all
 test --test_verbose_timeout_warnings
 test --test_summary=detailed             # More detailed test summary
 test --test_strategy=exclusive           # Run tests sequentially

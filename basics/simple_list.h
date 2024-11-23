@@ -98,14 +98,16 @@ public:
 
     void clear() noexcept;
 
-    int size() const noexcept;
-    bool empty() const noexcept;
+    int size() const noexcept { return _size; }
+    bool empty() const noexcept { return _size == 0; }
+    bool sorted() const noexcept { return _sorted; }
 
     bool contains(T const &value) const noexcept;
 
 private:
     std::unique_ptr<SimpleNode<T>> _head;
     int _size = 0;
+    bool _sorted = true;
 
     std::unique_ptr<SimpleNode<T>> _insert_sorted(std::unique_ptr<SimpleNode<T>> head, T value) noexcept;
 };
@@ -113,20 +115,12 @@ private:
 template <typename T>
 void SimpleList<T>::push_front(T value) noexcept
 {
+    if (_head != nullptr && _head->value < value)
+    {
+        _sorted = false; // The list is no longer sorted
+    }
     _head = std::make_unique<SimpleNode<T>>(value, std::move(_head));
     ++_size;
-}
-
-template <typename T>
-int SimpleList<T>::size() const noexcept
-{
-    return _size;
-}
-
-template <typename T>
-bool SimpleList<T>::empty() const noexcept
-{
-    return _size == 0;
 }
 
 template <typename T>
@@ -144,6 +138,7 @@ void SimpleList<T>::clear() noexcept
 {
     _head = nullptr;
     _size = 0;
+    _sorted = true;
 }
 
 template <typename T>
@@ -159,6 +154,7 @@ void SimpleList<T>::reverse() noexcept
         current = std::move(next);
     }
     _head = std::move(prev);
+    _sorted = false;
 }
 
 template <typename T>
@@ -180,6 +176,10 @@ std::unique_ptr<SimpleNode<T>> SimpleList<T>::_insert_sorted(std::unique_ptr<Sim
 template <typename T>
 void SimpleList<T>::sort() noexcept
 {
+    if (_sorted)
+    {
+        return; // the list is already sorted
+    }
     std::unique_ptr<SimpleNode<T>> sorted_head = nullptr;
     while (_head != nullptr)
     {
@@ -187,44 +187,66 @@ void SimpleList<T>::sort() noexcept
         sorted_head = _insert_sorted(std::move(sorted_head), value);
     }
     _head = std::move(sorted_head);
+    _sorted = true;
 }
 
 template <typename T>
 void SimpleList<T>::filter(std::function<bool(T)> const &func) noexcept
 {
-    if (_head == nullptr)
-    {
-        return; // List is empty, nothing to filter
-    }
-    auto current = _head.get();
-    while (current->next != nullptr)
-    {
-        if (!func(current->next->value))
-        {
-            current->next = std::move(current->next->next);
-            --_size;
-        }
-        else
-        {
-            current = current->next.get();
-        }
-    }
-    if (!func(_head->value))
+    // Remove elements from the head that don't satisfy the predicate
+    while (_head != nullptr && !func(_head->value))
     {
         _head = std::move(_head->next);
         --_size;
     }
+
+    if (_size <= 1)
+    {
+        _sorted = true;
+        return;
+    }
+
+    auto previous = _head.get();
+    auto current = previous->next.get();
+    bool sorted_after_filter = true;
+
+    while (current != nullptr)
+    {
+        if (!func(current->value))
+        {
+            previous->next = std::move(current->next);
+            current = previous->next.get();
+            --_size;
+        }
+        else
+        {
+            // Check sorting only for elements we're keeping
+            sorted_after_filter &= (previous->value <= current->value);
+            previous = current;
+            current = current->next.get();
+        }
+    }
+
+    _sorted = sorted_after_filter;
 }
 
 template <typename T>
 void SimpleList<T>::transform(std::function<T(T)> const &func) noexcept
 {
     auto current = _head.get();
+    SimpleNode<T> *prev = nullptr;
+    bool sorted_after_transform = true;
     while (current != nullptr)
     {
         current->value = func(current->value);
+        if (prev != nullptr && prev->value > current->value && sorted_after_transform)
+        {
+            sorted_after_transform = false;
+        }
+        prev = current;
         current = current->next.get();
     }
+    _sorted = sorted_after_transform;
 }
 
 template <typename T>
@@ -237,6 +259,8 @@ T SimpleList<T>::pop_front()
     auto value = head();
     _head = std::move(_head->next);
     --_size;
+    // Popping the front element doesn't change the sorted state
+    // because we don't know if the list was sorted before popping
     return value;
 }
 
