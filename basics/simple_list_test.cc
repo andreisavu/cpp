@@ -181,8 +181,16 @@ TEST(SimpleListTest, ReverseTwice)
     list.push_front(2);
     list.push_front(1);
     EXPECT_TRUE(list.sorted());
+
     list.reverse();
     EXPECT_FALSE(list.sorted());
+
     list.reverse();
     EXPECT_TRUE(list.sorted());
+
+    list.push_front(4);
+    EXPECT_FALSE(list.sorted());
+
+    list.reverse();
+    EXPECT_FALSE(list.sorted());
 }
