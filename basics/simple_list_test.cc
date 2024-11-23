@@ -147,6 +147,8 @@ TEST(SimpleListTest, SortedStateAfterOperations)
     list.transform([](int x)
                    { if (x == 5) { return 0; }
                      return x; });
+    list.transform([](int x)
+                   { return x * 2; });
     EXPECT_TRUE(list.sorted());
 
     list.filter([](int x)
