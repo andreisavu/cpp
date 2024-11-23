@@ -1,5 +1,5 @@
 cc_library(
-    name = "all",
+    name = "formats",
     srcs = glob(
         ["*.cc"],
         exclude = [
@@ -14,7 +14,7 @@ cc_library(
 cc_binary(
     name = "main",
     srcs = ["main.cc"],
-    deps = [":all"],
+    deps = [":formats"],
 )
 
 cc_test(
@@ -22,7 +22,7 @@ cc_test(
     size = "small",
     srcs = glob(["*_test.cc"]),
     deps = [
-        ":all",
+        ":formats",
         "@googletest//:gtest_main",
     ],
 )
