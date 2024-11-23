@@ -53,3 +53,24 @@ TEST(SimpleListTest, Iterator)
         EXPECT_EQ(it, i--);
     }
 }
+
+TEST(SimpleListTest, Contains)
+{
+    SimpleList<int> list;
+    list.push_front(1);
+    list.push_front(2);
+    list.push_front(3);
+    EXPECT_TRUE(list.contains(1));
+    EXPECT_TRUE(list.contains(2));
+    EXPECT_TRUE(list.contains(3));
+    EXPECT_FALSE(list.contains(4));
+}
+
+TEST(SimpleListTest, Clear)
+{
+    SimpleList<int> list;
+    list.push_front(1);
+    EXPECT_EQ(list.size(), 1);
+    list.clear();
+    EXPECT_TRUE(list.empty());
+}

@@ -70,12 +70,12 @@ public:
         SimpleNode<T> *current;
     };
 
-    Iterator begin() noexcept
+    Iterator begin() const noexcept
     {
         return Iterator(_head.get());
     }
 
-    Iterator end() noexcept
+    Iterator end() const noexcept
     {
         return Iterator(nullptr);
     }
@@ -84,8 +84,12 @@ public:
     T pop_front();
     T const &head() const;
 
+    void clear() noexcept;
+
     int size() const noexcept;
     bool empty() const noexcept;
+
+    bool contains(T const &value) const noexcept;
 
 private:
     std::unique_ptr<SimpleNode<T>> _head;
@@ -122,6 +126,13 @@ T const &SimpleList<T>::head() const
 }
 
 template <typename T>
+void SimpleList<T>::clear() noexcept
+{
+    _head = nullptr;
+    _size = 0;
+}
+
+template <typename T>
 T SimpleList<T>::pop_front()
 {
     if (_head == nullptr)
@@ -132,4 +143,10 @@ T SimpleList<T>::pop_front()
     _head = std::move(_head->next);
     --_size;
     return value;
+}
+
+template <typename T>
+bool SimpleList<T>::contains(T const &value) const noexcept
+{
+    return std::find(begin(), end(), value) != end();
 }
