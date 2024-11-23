@@ -74,3 +74,17 @@ TEST(SimpleListTest, Clear)
     list.clear();
     EXPECT_TRUE(list.empty());
 }
+
+TEST(SimpleListTest, Reverse)
+{
+    SimpleList<int> list;
+    list.push_front(1);
+    list.push_front(2);
+    list.push_front(3);
+    EXPECT_EQ(list.size(), 3);
+    list.reverse();
+    EXPECT_EQ(list.pop_front(), 1);
+    EXPECT_EQ(list.pop_front(), 2);
+    EXPECT_EQ(list.pop_front(), 3);
+    EXPECT_TRUE(list.empty());
+}

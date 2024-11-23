@@ -84,6 +84,7 @@ public:
     T pop_front();
     T const &head() const;
 
+    void reverse() noexcept;
     void clear() noexcept;
 
     int size() const noexcept;
@@ -130,6 +131,21 @@ void SimpleList<T>::clear() noexcept
 {
     _head = nullptr;
     _size = 0;
+}
+
+template <typename T>
+void SimpleList<T>::reverse() noexcept
+{
+    std::unique_ptr<SimpleNode<T>> prev = nullptr;
+    std::unique_ptr<SimpleNode<T>> current = std::move(_head);
+    while (current != nullptr)
+    {
+        std::unique_ptr<SimpleNode<T>> next = std::move(current->next);
+        current->next = std::move(prev);
+        prev = std::move(current);
+        current = std::move(next);
+    }
+    _head = std::move(prev);
 }
 
 template <typename T>
