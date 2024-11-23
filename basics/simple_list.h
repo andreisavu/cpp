@@ -85,6 +85,7 @@ public:
     T const &head() const;
 
     void reverse() noexcept;
+    void sort() noexcept;
     void clear() noexcept;
 
     int size() const noexcept;
@@ -95,6 +96,8 @@ public:
 private:
     std::unique_ptr<SimpleNode<T>> _head;
     int _size = 0;
+
+    std::unique_ptr<SimpleNode<T>> _insert_sorted(std::unique_ptr<SimpleNode<T>> head, T value) noexcept;
 };
 
 template <typename T>
@@ -146,6 +149,34 @@ void SimpleList<T>::reverse() noexcept
         current = std::move(next);
     }
     _head = std::move(prev);
+}
+
+template <typename T>
+std::unique_ptr<SimpleNode<T>> SimpleList<T>::_insert_sorted(std::unique_ptr<SimpleNode<T>> head, T value) noexcept
+{
+    if (head == nullptr || head->value >= value)
+    {
+        return std::make_unique<SimpleNode<T>>(value, std::move(head));
+    }
+    auto current = head.get();
+    while (current->next != nullptr && current->next->value < value)
+    {
+        current = current->next.get();
+    }
+    current->next = std::make_unique<SimpleNode<T>>(value, std::move(current->next));
+    return head;
+}
+
+template <typename T>
+void SimpleList<T>::sort() noexcept
+{
+    std::unique_ptr<SimpleNode<T>> sorted_head = nullptr;
+    while (_head != nullptr)
+    {
+        T value = pop_front();
+        sorted_head = _insert_sorted(std::move(sorted_head), value);
+    }
+    _head = std::move(sorted_head);
 }
 
 template <typename T>

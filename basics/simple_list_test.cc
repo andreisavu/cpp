@@ -88,3 +88,15 @@ TEST(SimpleListTest, Reverse)
     EXPECT_EQ(list.pop_front(), 3);
     EXPECT_TRUE(list.empty());
 }
+
+TEST(SimpleListTest, Sort)
+{
+    SimpleList<int> list;
+    list.push_front(3);
+    list.push_front(1);
+    list.push_front(2);
+    list.sort();
+    EXPECT_EQ(list.pop_front(), 1);
+    EXPECT_EQ(list.pop_front(), 2);
+    EXPECT_EQ(list.pop_front(), 3);
+}
