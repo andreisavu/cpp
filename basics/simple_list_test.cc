@@ -5,11 +5,11 @@ TEST(SimpleListTest, PushFrontAndGet)
 {
     SimpleList<int> list;
     list.push_front(1);
-    EXPECT_EQ(list.size(), 1);
-    EXPECT_EQ(list.head(), 1);
+    EXPECT_EQ(list.count(), 1);
+    EXPECT_EQ(list.front(), 1);
     EXPECT_EQ(list.pop_front(), 1);
-    EXPECT_EQ(list.size(), 0);
-    EXPECT_THROW(list.head(), std::out_of_range);
+    EXPECT_EQ(list.count(), 0);
+    EXPECT_THROW(list.front(), std::out_of_range);
 }
 
 TEST(SimpleListTest, PushBack)
@@ -19,32 +19,32 @@ TEST(SimpleListTest, PushBack)
     list.push_back(2);
 
     EXPECT_TRUE(list.sorted());
-    EXPECT_EQ(list.size(), 2);
-    EXPECT_EQ(list.head(), 1);
+    EXPECT_EQ(list.count(), 2);
+    EXPECT_EQ(list.front(), 1);
 
     EXPECT_EQ(list.pop_front(), 1);
-    EXPECT_EQ(list.size(), 1);
+    EXPECT_EQ(list.count(), 1);
     EXPECT_EQ(list.pop_front(), 2);
 
     EXPECT_TRUE(list.empty());
-    EXPECT_THROW(list.head(), std::out_of_range);
+    EXPECT_THROW(list.front(), std::out_of_range);
 }
 
 TEST(SimpleListTest, Tail)
 {
     SimpleList<int> list;
     list.push_back(1);
-    EXPECT_EQ(list.tail(), 1);
+    EXPECT_EQ(list.back(), 1);
     list.push_back(2);
-    EXPECT_EQ(list.tail(), 2);
+    EXPECT_EQ(list.back(), 2);
     list.push_back(3);
-    EXPECT_EQ(list.tail(), 3);
+    EXPECT_EQ(list.back(), 3);
     list.pop_front();
-    EXPECT_EQ(list.tail(), 3);
+    EXPECT_EQ(list.back(), 3);
     list.pop_front();
-    EXPECT_EQ(list.tail(), 3);
+    EXPECT_EQ(list.back(), 3);
     list.pop_front();
-    EXPECT_THROW(list.tail(), std::out_of_range);
+    EXPECT_THROW(list.back(), std::out_of_range);
 }
 
 TEST(SimpleListTest, Remove)
@@ -53,7 +53,7 @@ TEST(SimpleListTest, Remove)
     list.push_front(1);
     list.push_front(2);
     list.remove(1);
-    EXPECT_EQ(list.size(), 1);
+    EXPECT_EQ(list.count(), 1);
     EXPECT_EQ(list.pop_front(), 2);
     EXPECT_TRUE(list.empty());
 }
@@ -61,13 +61,13 @@ TEST(SimpleListTest, Remove)
 TEST(SimpleListTest, OutOfRange)
 {
     SimpleList<int> list;
-    EXPECT_THROW(list.head(), std::out_of_range);
+    EXPECT_THROW(list.front(), std::out_of_range);
 }
 
 TEST(SimpleListTest, Size)
 {
     SimpleList<int> list;
-    EXPECT_EQ(list.size(), 0);
+    EXPECT_EQ(list.count(), 0);
 }
 
 TEST(SimpleListTest, MoveConstructorAndAssignmentOperator)
@@ -79,10 +79,10 @@ TEST(SimpleListTest, MoveConstructorAndAssignmentOperator)
     // After move, the original list is empty
     EXPECT_TRUE(list.empty());
     EXPECT_THROW(list.pop_front(), std::out_of_range);
-    EXPECT_THROW(list.head(), std::out_of_range);
+    EXPECT_THROW(list.front(), std::out_of_range);
 
     // The moved-to list is not empty
-    EXPECT_EQ(list2.size(), 1);
+    EXPECT_EQ(list2.count(), 1);
     EXPECT_EQ(list2.pop_front(), 1);
 }
 
@@ -116,7 +116,7 @@ TEST(SimpleListTest, Clear)
 {
     SimpleList<int> list;
     list.push_front(1);
-    EXPECT_EQ(list.size(), 1);
+    EXPECT_EQ(list.count(), 1);
     list.clear();
     EXPECT_TRUE(list.empty());
 }
@@ -127,7 +127,7 @@ TEST(SimpleListTest, Reverse)
     list.push_front(1);
     list.push_front(2);
     list.push_front(3);
-    EXPECT_EQ(list.size(), 3);
+    EXPECT_EQ(list.count(), 3);
     list.reverse();
     EXPECT_EQ(list.pop_front(), 1);
     EXPECT_EQ(list.pop_front(), 2);
@@ -172,7 +172,7 @@ TEST(SimpleListTest, KeepIf)
     list.keep_if([](int x)
                 { return x % 2 == 0; });
 
-    EXPECT_EQ(list.size(), 1);
+    EXPECT_EQ(list.count(), 1);
     EXPECT_EQ(list.pop_front(), 2);
 }
 

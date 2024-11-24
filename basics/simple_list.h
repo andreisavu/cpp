@@ -93,8 +93,8 @@ public:
 
     void push_back(T value) noexcept;
 
-    T const &head() const;
-    T const &tail() const;
+    T const &front() const;
+    T const &back() const;
 
     void reverse() noexcept;
     void sort() noexcept;
@@ -108,7 +108,7 @@ public:
 
     void clear() noexcept;
 
-    int size() const noexcept { return _size; }
+    int count() const noexcept { return _size; }
     bool empty() const noexcept { return _size == 0; }
     bool sorted() const noexcept { return _sorted; }
 
@@ -154,7 +154,7 @@ void SimpleList<T>::push_back(T value) noexcept
 }
 
 template <typename T>
-T const &SimpleList<T>::head() const
+T const &SimpleList<T>::front() const
 {
     if (_head == nullptr)
     {
@@ -164,7 +164,7 @@ T const &SimpleList<T>::head() const
 }
 
 template <typename T>
-T const &SimpleList<T>::tail() const
+T const &SimpleList<T>::back() const
 {
     if (_tail == nullptr)
     {
@@ -276,8 +276,7 @@ void SimpleList<T>::keep_if(std::function<bool(T)> const &func) noexcept
         _sorted = true;
         return;
     }
-
-    if (_size <= 1)
+    if (_size == 1)
     {
         _sorted = true;
         return;
@@ -350,7 +349,7 @@ T SimpleList<T>::pop_front()
     {
         throw std::out_of_range("List is empty");
     }
-    auto value = head();
+    auto value = front();
     _head = _head->next;
     if (_head == nullptr)
     {
