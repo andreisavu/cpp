@@ -240,3 +240,13 @@ TEST(SimpleListTest, ReverseTwice)
     list.reverse();
     EXPECT_FALSE(list.sorted());
 }
+
+TEST(SimpleListTest, Count)
+{
+    SimpleList<int> list;
+    list.push_front(1);
+    list.push_front(2);
+    list.push_front(3);
+    list.push_back(1);
+    EXPECT_EQ(list.count(1), 2);
+}

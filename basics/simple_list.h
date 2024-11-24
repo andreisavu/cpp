@@ -109,6 +109,9 @@ public:
     void clear() noexcept;
 
     int count() const noexcept { return _size; }
+    int count_if(std::function<bool(T)> const &func) const noexcept;
+    int count(T const &value) const noexcept;
+
     bool empty() const noexcept { return _size == 0; }
     bool sorted() const noexcept { return _sorted; }
 
@@ -366,4 +369,25 @@ template <typename T>
 bool SimpleList<T>::contains(T const &value) const noexcept
 {
     return std::find(begin(), end(), value) != end();
+}
+
+template <typename T>
+int SimpleList<T>::count_if(std::function<bool(T)> const &func) const noexcept
+{
+    int count = 0;
+    for (auto it : *this)
+    {
+        if (func(it))
+        {
+            ++count;
+        }
+    }
+    return count;
+}
+
+template <typename T>
+int SimpleList<T>::count(T const &value) const noexcept
+{
+    return count_if([&value](T x)
+                    { return x == value; });
 }
