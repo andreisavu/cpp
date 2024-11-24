@@ -8,7 +8,7 @@ template <typename T>
 class SimpleNode
 {
 public:
-    SimpleNode(T value, std::unique_ptr<SimpleNode<T>> next)
+    SimpleNode(T value, std::shared_ptr<SimpleNode<T>> next)
         : value(value), next(std::move(next)) {}
     ~SimpleNode() = default;
 
@@ -19,7 +19,7 @@ public:
     SimpleNode &operator=(SimpleNode &&other) noexcept = delete;
 
     T value;
-    std::unique_ptr<SimpleNode<T>> next;
+    std::shared_ptr<SimpleNode<T>> next;
 };
 
 /**
@@ -112,12 +112,12 @@ public:
     bool contains(T const &value) const noexcept;
 
 private:
-    std::unique_ptr<SimpleNode<T>> _head;
+    std::shared_ptr<SimpleNode<T>> _head;
 
     int _size = 0;
     bool _sorted = true;
 
-    std::unique_ptr<SimpleNode<T>> _insert_sorted(std::unique_ptr<SimpleNode<T>> head, T value) noexcept;
+    std::shared_ptr<SimpleNode<T>> _insert_sorted(std::shared_ptr<SimpleNode<T>> head, T value) noexcept;
 };
 
 template <typename T>
@@ -126,7 +126,7 @@ void SimpleList<T>::push_front(T value) noexcept
     if (_head != nullptr) {
         _sorted &= (_head->value >= value);
     }
-    _head = std::make_unique<SimpleNode<T>>(value, std::move(_head));
+    _head = std::make_shared<SimpleNode<T>>(value, std::move(_head));
     ++_size;
 }
 
@@ -143,7 +143,7 @@ void SimpleList<T>::push_back(T value) noexcept
     {
         current = current->next.get();
     }
-    current->next = std::make_unique<SimpleNode<T>>(value, nullptr);
+    current->next = std::make_shared<SimpleNode<T>>(value, nullptr);
     ++_size;
     _sorted &= (current->value <= value);
 }
@@ -174,8 +174,8 @@ void SimpleList<T>::reverse() noexcept
         return; // Already reversed and sorted
     }
 
-    std::unique_ptr<SimpleNode<T>> previous = nullptr;
-    std::unique_ptr<SimpleNode<T>> current = std::move(_head);
+    std::shared_ptr<SimpleNode<T>> previous = nullptr;
+    std::shared_ptr<SimpleNode<T>> current = std::move(_head);
 
     bool found_unsorted_pair = false;
     T last_value; // Keep track of the previous value for sorting check
@@ -193,7 +193,7 @@ void SimpleList<T>::reverse() noexcept
         last_value = current_value;
 
         // Perform the reversal
-        std::unique_ptr<SimpleNode<T>> next = std::move(current->next);
+        std::shared_ptr<SimpleNode<T>> next = std::move(current->next);
         current->next = std::move(previous);
         previous = std::move(current);
         current = std::move(next);
@@ -204,18 +204,18 @@ void SimpleList<T>::reverse() noexcept
 }
 
 template <typename T>
-std::unique_ptr<SimpleNode<T>> SimpleList<T>::_insert_sorted(std::unique_ptr<SimpleNode<T>> head, T value) noexcept
+std::shared_ptr<SimpleNode<T>> SimpleList<T>::_insert_sorted(std::shared_ptr<SimpleNode<T>> head, T value) noexcept
 {
     if (head == nullptr || head->value >= value)
     {
-        return std::make_unique<SimpleNode<T>>(value, std::move(head));
+        return std::make_shared<SimpleNode<T>>(value, std::move(head));
     }
     auto current = head.get();
     while (current->next != nullptr && current->next->value < value)
     {
         current = current->next.get();
     }
-    current->next = std::make_unique<SimpleNode<T>>(value, std::move(current->next));
+    current->next = std::make_shared<SimpleNode<T>>(value, std::move(current->next));
     return head;
 }
 
@@ -226,7 +226,7 @@ void SimpleList<T>::sort() noexcept
     {
         return; // the list is already sorted
     }
-    std::unique_ptr<SimpleNode<T>> sorted_head = nullptr;
+    std::shared_ptr<SimpleNode<T>> sorted_head = nullptr;
     while (_head != nullptr)
     {
         T value = pop_front();
