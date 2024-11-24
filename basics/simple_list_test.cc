@@ -270,3 +270,24 @@ TEST(SimpleListTest, UniqueWithInsertSorted)
     EXPECT_EQ(list.pop_front(), 3);
     EXPECT_EQ(list.pop_front(), 4);
 }
+
+TEST(SimpleListTest, Merge)
+{
+    SimpleList<int> list;
+    list.push_front(1);
+    list.push_front(2);
+
+    SimpleList<int> list2;
+    list2.push_front(3);
+    list2.push_front(4);
+
+    list.merge(list2);
+
+    EXPECT_EQ(list.count(), 4);
+    EXPECT_EQ(list.pop_front(), 2);
+    EXPECT_EQ(list.pop_front(), 1);
+    EXPECT_EQ(list.pop_front(), 4);
+    EXPECT_EQ(list.pop_front(), 3);
+
+    EXPECT_TRUE(list2.empty());
+}

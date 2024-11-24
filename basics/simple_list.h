@@ -94,6 +94,7 @@ public:
     void push_back(T value) noexcept;
 
     void insert_sorted(T value);
+    void merge(SimpleList<T> &other);
 
     T const &front() const;
     T const &back() const;
@@ -415,4 +416,26 @@ void SimpleList<T>::unique() noexcept
         }
     }
     _tail = current;
+}
+
+template <typename T>
+void SimpleList<T>::merge(SimpleList<T> &other)
+{
+    // Perform a naive merge of the two lists that ignores the sorted state
+    if (other.empty())
+    {
+        return;
+    }
+    if (_head == nullptr)
+    {
+        _head = other._head;
+    }
+    else
+    {
+        _tail->next = other._head;
+    }
+    _tail = other._tail;
+    _size += other._size;
+    _sorted = false; // Merging two lists invalidates the sorted state
+    other.clear();
 }
