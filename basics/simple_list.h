@@ -280,8 +280,9 @@ T SimpleList<T>::pop_front()
     auto value = head();
     _head = std::move(_head->next);
     --_size;
-    // Popping the front element doesn't change the sorted state
-    // because we don't know if the list was sorted before popping
+    // Popping the front element doesn't change the sorted state because we don't
+    // know if the list would have been sorted after popping. If the list was
+    // sorted before popping, it is still sorted after popping.
     return value;
 }
 
