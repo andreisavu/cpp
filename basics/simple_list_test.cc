@@ -250,3 +250,20 @@ TEST(SimpleListTest, Count)
     list.push_back(1);
     EXPECT_EQ(list.count(1), 2);
 }
+
+TEST(SimpleListTest, Unique)
+{
+    SimpleList<int> list;
+    list.push_front(1);
+    list.push_front(2);
+    list.push_front(3);
+    list.push_front(2);
+    list.push_front(1);
+    list.push_front(4);
+    list.unique();
+    EXPECT_EQ(list.count(), 4);
+    EXPECT_EQ(list.pop_front(), 1);
+    EXPECT_EQ(list.pop_front(), 2);
+    EXPECT_EQ(list.pop_front(), 3);
+    EXPECT_EQ(list.pop_front(), 4);
+}

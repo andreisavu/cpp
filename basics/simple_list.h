@@ -98,6 +98,7 @@ public:
 
     void reverse() noexcept;
     void sort() noexcept;
+    void unique() noexcept;
 
     void keep_if(std::function<bool(T)> const &func) noexcept;
 
@@ -390,4 +391,28 @@ int SimpleList<T>::count(T const &value) const noexcept
 {
     return count_if([&value](T x)
                     { return x == value; });
+}
+
+template <typename T>
+void SimpleList<T>::unique() noexcept
+{
+    if (_size <= 1)
+    {
+        return; // Already unique
+    }
+    sort(); // Sorting is required to make sure duplicates are adjacent
+    auto current = _head;
+    while (current->next != nullptr)
+    {
+        if (current->value == current->next->value)
+        {
+            current->next = current->next->next;
+            --_size;
+        }
+        else
+        {
+            current = current->next;
+        }
+    }
+    _tail = current;
 }
