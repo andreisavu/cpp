@@ -14,6 +14,19 @@ static void BM_SimpleListPushFront(benchmark::State &state)
 }
 BENCHMARK(BM_SimpleListPushFront)->Range(8, 2 << 10);
 
+static void BM_SimpleListPushBack(benchmark::State &state)
+{
+    for (auto _ : state)
+    {
+        SimpleList<int> list;
+        for (int i = 0; i < state.range(0); ++i)
+        {
+            list.push_back(i);
+        }
+    }
+}
+BENCHMARK(BM_SimpleListPushBack)->Range(8, 2 << 10);
+
 static void BM_SimpleListPopFront(benchmark::State &state)
 {
     for (auto _ : state)
