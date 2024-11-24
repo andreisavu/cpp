@@ -9,7 +9,7 @@ class SimpleNode
 {
 public:
     SimpleNode(T value, std::shared_ptr<SimpleNode<T>> next)
-        : value(value), next(std::move(next)) {}
+        : value(value), next(next) {}
     ~SimpleNode() = default;
 
     SimpleNode(SimpleNode const &other) = delete;
@@ -38,16 +38,18 @@ public:
     SimpleList &operator=(const SimpleList &) = delete;
 
     SimpleList(SimpleList &&other) noexcept
-        : _head(std::move(other._head)), _size(other._size)
+        : _head(other._head), _tail(other._tail), _size(other._size), _sorted(other._sorted)
     {
-        other._size = 0;
+        other.clear();
     }
 
     SimpleList &operator=(SimpleList &&other) noexcept
     {
-        _head = std::move(other._head);
+        _head = other._head;
+        _tail = other._tail;
         _size = other._size;
-        other._size = 0;
+        _sorted = other._sorted;
+        other.clear();
         return *this;
     }
 
@@ -92,6 +94,7 @@ public:
     void push_back(T value) noexcept;
 
     T const &head() const;
+    T const &tail() const;
 
     void reverse() noexcept;
     void sort() noexcept;
@@ -113,20 +116,26 @@ public:
 
 private:
     std::shared_ptr<SimpleNode<T>> _head;
+    std::shared_ptr<SimpleNode<T>> _tail;
 
     int _size = 0;
     bool _sorted = true;
 
-    std::shared_ptr<SimpleNode<T>> _insert_sorted(std::shared_ptr<SimpleNode<T>> head, T value) noexcept;
+    void _insert_sorted(T value);
 };
 
 template <typename T>
 void SimpleList<T>::push_front(T value) noexcept
 {
-    if (_head != nullptr) {
+    if (_head != nullptr)
+    {
         _sorted &= (_head->value >= value);
     }
-    _head = std::make_shared<SimpleNode<T>>(value, std::move(_head));
+    _head = std::make_shared<SimpleNode<T>>(value, _head);
+    if (_tail == nullptr)
+    {
+        _tail = _head;
+    }
     ++_size;
 }
 
@@ -138,14 +147,10 @@ void SimpleList<T>::push_back(T value) noexcept
         push_front(value);
         return;
     }
-    auto current = _head.get();
-    while (current->next != nullptr)
-    {
-        current = current->next.get();
-    }
-    current->next = std::make_shared<SimpleNode<T>>(value, nullptr);
+    _sorted &= (_tail->value <= value);
+    _tail->next = std::make_shared<SimpleNode<T>>(value, nullptr);
+    _tail = _tail->next;
     ++_size;
-    _sorted &= (current->value <= value);
 }
 
 template <typename T>
@@ -159,9 +164,20 @@ T const &SimpleList<T>::head() const
 }
 
 template <typename T>
+T const &SimpleList<T>::tail() const
+{
+    if (_tail == nullptr)
+    {
+        throw std::out_of_range("List is empty");
+    }
+    return _tail->value;
+}
+
+template <typename T>
 void SimpleList<T>::clear() noexcept
 {
     _head = nullptr;
+    _tail = nullptr;
     _size = 0;
     _sorted = true;
 }
@@ -175,7 +191,7 @@ void SimpleList<T>::reverse() noexcept
     }
 
     std::shared_ptr<SimpleNode<T>> previous = nullptr;
-    std::shared_ptr<SimpleNode<T>> current = std::move(_head);
+    auto current = _head;
 
     bool found_unsorted_pair = false;
     T last_value; // Keep track of the previous value for sorting check
@@ -193,30 +209,40 @@ void SimpleList<T>::reverse() noexcept
         last_value = current_value;
 
         // Perform the reversal
-        std::shared_ptr<SimpleNode<T>> next = std::move(current->next);
-        current->next = std::move(previous);
-        previous = std::move(current);
-        current = std::move(next);
+        std::shared_ptr<SimpleNode<T>> next = current->next;
+        current->next = previous;
+        previous = current;
+        current = next;
     }
 
-    _head = std::move(previous);
+    _tail = _head;
+    _head = previous;
     _sorted = !found_unsorted_pair;
 }
 
 template <typename T>
-std::shared_ptr<SimpleNode<T>> SimpleList<T>::_insert_sorted(std::shared_ptr<SimpleNode<T>> head, T value) noexcept
+void SimpleList<T>::_insert_sorted(T value)
 {
-    if (head == nullptr || head->value >= value)
+    if (!_sorted)
     {
-        return std::make_shared<SimpleNode<T>>(value, std::move(head));
+        throw std::logic_error("List is not sorted");
     }
-    auto current = head.get();
+    if (_head == nullptr || _head->value >= value)
+    {
+        push_front(value);
+        return;
+    }
+    auto current = _head.get();
     while (current->next != nullptr && current->next->value < value)
     {
         current = current->next.get();
     }
-    current->next = std::make_shared<SimpleNode<T>>(value, std::move(current->next));
-    return head;
+    current->next = std::make_shared<SimpleNode<T>>(value, current->next);
+    if (current->next->next == nullptr)
+    {
+        _tail = current->next;
+    }
+    ++_size;
 }
 
 template <typename T>
@@ -226,14 +252,13 @@ void SimpleList<T>::sort() noexcept
     {
         return; // the list is already sorted
     }
-    std::shared_ptr<SimpleNode<T>> sorted_head = nullptr;
-    while (_head != nullptr)
+    auto current = _head;
+    clear();
+    while (current != nullptr)
     {
-        T value = pop_front();
-        sorted_head = _insert_sorted(std::move(sorted_head), value);
+        _insert_sorted(current->value);
+        current = current->next;
     }
-    _head = std::move(sorted_head);
-    _sorted = true;
 }
 
 template <typename T>
@@ -242,8 +267,14 @@ void SimpleList<T>::keep_if(std::function<bool(T)> const &func) noexcept
     // Remove elements from the head that don't satisfy the predicate
     while (_head != nullptr && !func(_head->value))
     {
-        _head = std::move(_head->next);
+        _head = _head->next;
         --_size;
+    }
+    if (_head == nullptr)
+    {
+        _tail = nullptr;
+        _sorted = true;
+        return;
     }
 
     if (_size <= 1)
@@ -252,16 +283,16 @@ void SimpleList<T>::keep_if(std::function<bool(T)> const &func) noexcept
         return;
     }
 
-    auto previous = _head.get();
-    auto current = previous->next.get();
+    auto previous = _head;
+    auto current = previous->next;
     bool sorted_after_filter = true;
 
     while (current != nullptr)
     {
         if (!func(current->value))
         {
-            previous->next = std::move(current->next);
-            current = previous->next.get();
+            previous->next = current->next;
+            current = previous->next;
             --_size;
         }
         else
@@ -269,10 +300,13 @@ void SimpleList<T>::keep_if(std::function<bool(T)> const &func) noexcept
             // Check sorting only for elements we're keeping
             sorted_after_filter &= (previous->value <= current->value);
             previous = current;
-            current = current->next.get();
+            current = current->next;
         }
     }
-
+    if (previous != nullptr)
+    {
+        _tail = previous;
+    }
     _sorted = sorted_after_filter;
 }
 
@@ -293,18 +327,18 @@ void SimpleList<T>::remove(T const &value) noexcept
 template <typename T>
 void SimpleList<T>::transform(std::function<T(T)> const &func) noexcept
 {
-    auto current = _head.get();
-    SimpleNode<T> *prev = nullptr;
+    auto current = _head;
+    std::shared_ptr<SimpleNode<T>> previous = nullptr;
     bool sorted_after_transform = true;
     while (current != nullptr)
     {
         current->value = func(current->value);
-        if (prev != nullptr && prev->value > current->value && sorted_after_transform)
+        if (previous != nullptr && previous->value > current->value && sorted_after_transform)
         {
             sorted_after_transform = false;
         }
-        prev = current;
-        current = current->next.get();
+        previous = current;
+        current = current->next;
     }
     _sorted = sorted_after_transform;
 }
@@ -317,7 +351,11 @@ T SimpleList<T>::pop_front()
         throw std::out_of_range("List is empty");
     }
     auto value = head();
-    _head = std::move(_head->next);
+    _head = _head->next;
+    if (_head == nullptr)
+    {
+        _tail = nullptr;
+    }
     --_size;
     // Popping the front element doesn't change the sorted state because we don't
     // know if the list would have been sorted after popping. If the list was
