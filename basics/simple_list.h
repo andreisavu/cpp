@@ -93,6 +93,8 @@ public:
 
     void push_back(T value) noexcept;
 
+    void insert_sorted(T value);
+
     T const &front() const;
     T const &back() const;
 
@@ -124,8 +126,6 @@ private:
 
     int _size = 0;
     bool _sorted = true;
-
-    void _insert_sorted(T value);
 };
 
 template <typename T>
@@ -225,7 +225,7 @@ void SimpleList<T>::reverse() noexcept
 }
 
 template <typename T>
-void SimpleList<T>::_insert_sorted(T value)
+void SimpleList<T>::insert_sorted(T value)
 {
     if (!_sorted)
     {
@@ -260,7 +260,7 @@ void SimpleList<T>::sort() noexcept
     clear();
     while (current != nullptr)
     {
-        _insert_sorted(current->value);
+        insert_sorted(current->value);
         current = current->next;
     }
 }

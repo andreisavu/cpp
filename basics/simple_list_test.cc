@@ -170,7 +170,7 @@ TEST(SimpleListTest, KeepIf)
     list.push_front(3);
 
     list.keep_if([](int x)
-                { return x % 2 == 0; });
+                 { return x % 2 == 0; });
 
     EXPECT_EQ(list.count(), 1);
     EXPECT_EQ(list.pop_front(), 2);
@@ -198,14 +198,14 @@ TEST(SimpleListTest, SortedStateAfterOperations)
     EXPECT_TRUE(list.sorted());
 
     list.keep_if([](int x)
-                { return x % 2 == 0; });
+                 { return x % 2 == 0; });
     EXPECT_TRUE(list.sorted());
 
     list.push_front(10);
     EXPECT_FALSE(list.sorted());
 
     list.keep_if([](int x)
-                { return x != 10; });
+                 { return x != 10; });
     EXPECT_TRUE(list.sorted());
 
     list.push_front(15);
@@ -251,16 +251,19 @@ TEST(SimpleListTest, Count)
     EXPECT_EQ(list.count(1), 2);
 }
 
-TEST(SimpleListTest, Unique)
+TEST(SimpleListTest, UniqueWithInsertSorted)
 {
     SimpleList<int> list;
-    list.push_front(1);
-    list.push_front(2);
-    list.push_front(3);
-    list.push_front(2);
-    list.push_front(1);
-    list.push_front(4);
+    list.insert_sorted(1);
+    list.insert_sorted(2);
+    list.insert_sorted(3);
+    list.insert_sorted(2);
+    list.insert_sorted(1);
+    list.insert_sorted(4);
+
+    EXPECT_TRUE(list.sorted());
     list.unique();
+
     EXPECT_EQ(list.count(), 4);
     EXPECT_EQ(list.pop_front(), 1);
     EXPECT_EQ(list.pop_front(), 2);
