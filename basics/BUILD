@@ -40,3 +40,12 @@ cc_test(
         "@googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "arrays_test",
+    size = "small",
+    srcs = ["arrays_test.cc"],
+    deps = [
+        "@googletest//:gtest_main",
+    ],
+)

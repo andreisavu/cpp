@@ -2,7 +2,7 @@
 
 ## Basic Structures:
 
-    [ ] Arrays - fixed size, contiguous memory
+    [x] Arrays - fixed size, contiguous memory
     [ ] Vectors - dynamic arrays
     [ ] Linked Lists - implement both singly and doubly linked
     [ ] Stack - LIFO implementation
