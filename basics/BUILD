@@ -5,9 +5,9 @@ cc_library(
         exclude = [
             "main.cc",
             "*_test.cc",
+            "*_benchmark.cc",
         ],
-    )
-    ,
+    ),
     hdrs = glob(["*.h"]),
     visibility = ["//visibility:public"],
 )
@@ -16,6 +16,15 @@ cc_binary(
     name = "main",
     srcs = ["main.cc"],
     deps = [":basics"],
+)
+
+cc_binary(
+    name = "simple_list_benchmark",
+    srcs = ["simple_list_benchmark.cc"],
+    deps = [
+        ":basics",
+        "@google_benchmark//:benchmark",
+    ],
 )
 
 cc_test(
