@@ -291,3 +291,29 @@ TEST(SimpleListTest, Merge)
 
     EXPECT_TRUE(list2.empty());
 }
+
+TEST(SimpleListTest, MergeSorted)
+{
+    SimpleList<int> list;
+    list.insert_sorted(2);
+    list.insert_sorted(1);
+    EXPECT_TRUE(list.sorted());
+
+    SimpleList<int> list2;
+    list2.insert_sorted(4);
+    list2.insert_sorted(3);
+    list2.insert_sorted(5);
+    EXPECT_TRUE(list2.sorted());
+
+    list.merge(list2);
+    EXPECT_TRUE(list.sorted());
+
+    EXPECT_EQ(list.count(), 5);
+    EXPECT_EQ(list.pop_front(), 1);
+    EXPECT_EQ(list.pop_front(), 2);
+    EXPECT_EQ(list.pop_front(), 3);
+    EXPECT_EQ(list.pop_front(), 4);
+    EXPECT_EQ(list.pop_front(), 5);
+
+    EXPECT_TRUE(list2.empty());
+}

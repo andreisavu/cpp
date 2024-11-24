@@ -127,6 +127,8 @@ private:
 
     int _size = 0;
     bool _sorted = true;
+
+    void _merge_sorted(SimpleList<T> &other);
 };
 
 template <typename T>
@@ -421,7 +423,15 @@ void SimpleList<T>::unique() noexcept
 template <typename T>
 void SimpleList<T>::merge(SimpleList<T> &other)
 {
-    // Perform a naive merge of the two lists that ignores the sorted state
+    if (_sorted && other._sorted)
+    {
+        _merge_sorted(other);
+        return;
+    }
+
+    // Otherwise, perform a naive merge of the two lists that ignores the sorted state
+    // If sorted state is important, the lists should be sorted first or after merging
+
     if (other.empty())
     {
         return;
@@ -437,5 +447,55 @@ void SimpleList<T>::merge(SimpleList<T> &other)
     _tail = other._tail;
     _size += other._size;
     _sorted = false; // Merging two lists invalidates the sorted state
+
+    other.clear();
+}
+
+template <typename T>
+void SimpleList<T>::_merge_sorted(SimpleList<T> &other)
+{
+    if (other.empty())
+    {
+        return;
+    }
+    // If this list is empty, copy the other list
+    if (_head == nullptr)
+    {
+        _head = other._head;
+        _tail = other._tail;
+        _size = other._size;
+        _sorted = other._sorted;
+        other.clear();
+        return;
+    }
+    // Both lists are non-empty, merge them while maintaining the sorted state
+    auto current = _head;
+    auto other_current = other._head;
+    clear(); // Clear this list before merging
+    while (current != nullptr && other_current != nullptr)
+    {
+        if (current->value < other_current->value)
+        {
+            push_back(current->value);
+            current = current->next;
+        }
+        else
+        {
+            push_back(other_current->value);
+            other_current = other_current->next;
+        }
+    }
+    // Append the remaining elements from this list
+    while (current != nullptr)
+    {
+        push_back(current->value);
+        current = current->next;
+    }
+    // Append the remaining elements from the other list
+    while (other_current != nullptr)
+    {
+        push_back(other_current->value);
+        other_current = other_current->next;
+    }
     other.clear();
 }
