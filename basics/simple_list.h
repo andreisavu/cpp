@@ -41,7 +41,7 @@ public:
     SimpleList &operator=(const SimpleList &) = delete;
 
     SimpleList(SimpleList &&other) noexcept
-        : _head(other._head), _tail(other._tail), _size(other._size), _sorted(other._sorted)
+        : _head(other._head), _tail(other._tail), _size(other._size), _sorted_ascending(other._sorted_ascending)
     {
         other.clear();
     }
@@ -51,7 +51,7 @@ public:
         _head = other._head;
         _tail = other._tail;
         _size = other._size;
-        _sorted = other._sorted;
+        _sorted_ascending = other._sorted_ascending;
         other.clear();
         return *this;
     }
@@ -120,7 +120,7 @@ public:
     int count(T const &value) const noexcept;
 
     bool empty() const noexcept { return _size == 0; }
-    bool sorted() const noexcept { return _sorted; }
+    bool sorted_ascending() const noexcept { return _sorted_ascending; }
 
     bool contains(T const &value) const noexcept;
 
@@ -129,7 +129,7 @@ private:
     std::shared_ptr<SimpleNode<T>> _tail;
 
     int _size = 0;
-    bool _sorted = true;
+    bool _sorted_ascending = true;
 
     void _merge_sorted(SimpleList<T> &other);
 
@@ -160,7 +160,7 @@ void SimpleList<T>::push_front(T value) noexcept
     _check_thread_safety();
     if (_head != nullptr)
     {
-        _sorted &= (_head->value >= value);
+        _sorted_ascending &= (_head->value >= value);
     }
     _head = std::make_shared<SimpleNode<T>>(value, _head);
     if (_tail == nullptr)
@@ -179,7 +179,7 @@ void SimpleList<T>::push_back(T value) noexcept
         push_front(value);
         return;
     }
-    _sorted &= (_tail->value <= value);
+    _sorted_ascending &= (_tail->value <= value);
     _tail->next = std::make_shared<SimpleNode<T>>(value, nullptr);
     _tail = _tail->next;
     ++_size;
@@ -214,7 +214,7 @@ void SimpleList<T>::clear() noexcept
     _head = nullptr;
     _tail = nullptr;
     _size = 0;
-    _sorted = true;
+    _sorted_ascending = true;
 }
 
 template <typename T>
@@ -253,14 +253,14 @@ void SimpleList<T>::reverse() noexcept
 
     _tail = _head;
     _head = previous;
-    _sorted = !found_unsorted_pair;
+    _sorted_ascending = !found_unsorted_pair;
 }
 
 template <typename T>
 void SimpleList<T>::insert_sorted(T value)
 {
     _check_thread_safety();
-    if (!_sorted)
+    if (!_sorted_ascending)
     {
         throw std::logic_error("List is not sorted");
     }
@@ -286,7 +286,7 @@ template <typename T>
 void SimpleList<T>::sort() noexcept
 {
     _check_thread_safety();
-    if (_sorted)
+    if (_sorted_ascending)
     {
         return; // the list is already sorted
     }
@@ -312,12 +312,12 @@ void SimpleList<T>::keep_if(std::function<bool(T)> const &func) noexcept
     if (_head == nullptr)
     {
         _tail = nullptr;
-        _sorted = true;
+        _sorted_ascending = true;
         return;
     }
     if (_size == 1)
     {
-        _sorted = true;
+        _sorted_ascending = true;
         return;
     }
 
@@ -345,7 +345,7 @@ void SimpleList<T>::keep_if(std::function<bool(T)> const &func) noexcept
     {
         _tail = previous;
     }
-    _sorted = sorted_after_filter;
+    _sorted_ascending = sorted_after_filter;
 }
 
 template <typename T>
@@ -379,7 +379,7 @@ void SimpleList<T>::transform(std::function<T(T)> const &func) noexcept
         previous = current;
         current = current->next;
     }
-    _sorted = sorted_after_transform;
+    _sorted_ascending = sorted_after_transform;
 }
 
 template <typename T>
@@ -462,7 +462,7 @@ template <typename T>
 void SimpleList<T>::merge(SimpleList<T> &other)
 {
     _check_thread_safety();
-    if (_sorted && other._sorted)
+    if (_sorted_ascending && other._sorted_ascending)
     {
         _merge_sorted(other);
         return;
@@ -485,7 +485,7 @@ void SimpleList<T>::merge(SimpleList<T> &other)
     }
     _tail = other._tail;
     _size += other._size;
-    _sorted = false; // Merging two lists invalidates the sorted state
+    _sorted_ascending = false; // Merging two lists invalidates the sorted state
 
     other.clear();
 }
@@ -503,7 +503,7 @@ void SimpleList<T>::_merge_sorted(SimpleList<T> &other)
         _head = other._head;
         _tail = other._tail;
         _size = other._size;
-        _sorted = other._sorted;
+        _sorted_ascending = other._sorted_ascending;
         other.clear();
         return;
     }

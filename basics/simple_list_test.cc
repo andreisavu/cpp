@@ -18,7 +18,7 @@ TEST(SimpleListTest, PushBack)
     list.push_back(1);
     list.push_back(2);
 
-    EXPECT_TRUE(list.sorted());
+    EXPECT_TRUE(list.sorted_ascending());
     EXPECT_EQ(list.count(), 2);
     EXPECT_EQ(list.front(), 1);
 
@@ -179,47 +179,47 @@ TEST(SimpleListTest, KeepIf)
 TEST(SimpleListTest, SortedStateAfterOperations)
 {
     SimpleList<int> list;
-    EXPECT_TRUE(list.sorted());
+    EXPECT_TRUE(list.sorted_ascending());
 
     list.push_front(3);
-    EXPECT_TRUE(list.sorted());
+    EXPECT_TRUE(list.sorted_ascending());
 
     list.push_front(2);
     list.push_front(1);
-    EXPECT_TRUE(list.sorted());
+    EXPECT_TRUE(list.sorted_ascending());
 
     list.push_front(5);
-    EXPECT_FALSE(list.sorted());
+    EXPECT_FALSE(list.sorted_ascending());
     list.transform([](int x)
                    { if (x == 5) { return 0; }
                      return x; });
     list.transform([](int x)
                    { return x * 2; });
-    EXPECT_TRUE(list.sorted());
+    EXPECT_TRUE(list.sorted_ascending());
 
     list.keep_if([](int x)
                  { return x % 2 == 0; });
-    EXPECT_TRUE(list.sorted());
+    EXPECT_TRUE(list.sorted_ascending());
 
     list.push_front(10);
-    EXPECT_FALSE(list.sorted());
+    EXPECT_FALSE(list.sorted_ascending());
 
     list.keep_if([](int x)
                  { return x != 10; });
-    EXPECT_TRUE(list.sorted());
+    EXPECT_TRUE(list.sorted_ascending());
 
     list.push_front(15);
-    EXPECT_FALSE(list.sorted());
+    EXPECT_FALSE(list.sorted_ascending());
 
     // Popping the front element always makes the list unsorted
-    // because we there is no way to know if the list is sorted after popping
+    // because we there is no way to know if the list is sorted_ascending after popping
     // the front element
 
     list.pop_front();
-    EXPECT_FALSE(list.sorted());
+    EXPECT_FALSE(list.sorted_ascending());
 
     list.clear();
-    EXPECT_TRUE(list.sorted());
+    EXPECT_TRUE(list.sorted_ascending());
 }
 
 TEST(SimpleListTest, ReverseTwice)
@@ -228,19 +228,19 @@ TEST(SimpleListTest, ReverseTwice)
     list.push_front(3);
     list.push_front(2);
     list.push_front(1);
-    EXPECT_TRUE(list.sorted());
+    EXPECT_TRUE(list.sorted_ascending());
 
     list.reverse();
-    EXPECT_FALSE(list.sorted());
+    EXPECT_FALSE(list.sorted_ascending());
 
     list.reverse();
-    EXPECT_TRUE(list.sorted());
+    EXPECT_TRUE(list.sorted_ascending());
 
     list.push_front(4);
-    EXPECT_FALSE(list.sorted());
+    EXPECT_FALSE(list.sorted_ascending());
 
     list.reverse();
-    EXPECT_FALSE(list.sorted());
+    EXPECT_FALSE(list.sorted_ascending());
 }
 
 TEST(SimpleListTest, Count)
@@ -263,7 +263,7 @@ TEST(SimpleListTest, UniqueWithInsertSorted)
     list.insert_sorted(1);
     list.insert_sorted(4);
 
-    EXPECT_TRUE(list.sorted());
+    EXPECT_TRUE(list.sorted_ascending());
     list.unique();
 
     EXPECT_EQ(list.count(), 4);
@@ -299,16 +299,16 @@ TEST(SimpleListTest, MergeSorted)
     SimpleList<int> list;
     list.insert_sorted(2);
     list.insert_sorted(1);
-    EXPECT_TRUE(list.sorted());
+    EXPECT_TRUE(list.sorted_ascending());
 
     SimpleList<int> list2;
     list2.insert_sorted(4);
     list2.insert_sorted(3);
     list2.insert_sorted(5);
-    EXPECT_TRUE(list2.sorted());
+    EXPECT_TRUE(list2.sorted_ascending());
 
     list.merge(list2);
-    EXPECT_TRUE(list.sorted());
+    EXPECT_TRUE(list.sorted_ascending());
 
     EXPECT_EQ(list.count(), 5);
     EXPECT_EQ(list.pop_front(), 1);
