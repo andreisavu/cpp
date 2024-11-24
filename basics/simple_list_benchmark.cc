@@ -52,7 +52,7 @@ static void BM_SimpleListTransform(benchmark::State &state)
 }
 BENCHMARK(BM_SimpleListTransform)->Range(8, 2 << 10);
 
-static void BM_SimpleListFilter(benchmark::State &state)
+static void BM_SimpleListKeepIf(benchmark::State &state)
 {
     for (auto _ : state)
     {
@@ -64,10 +64,10 @@ static void BM_SimpleListFilter(benchmark::State &state)
         }
         state.ResumeTiming();
 
-        list.filter([](int x)
+        list.keep_if([](int x)
                     { return x % 2 == 0; });
     }
 }
-BENCHMARK(BM_SimpleListFilter)->Range(8, 2 << 10);
+BENCHMARK(BM_SimpleListKeepIf)->Range(8, 2 << 10);
 
 BENCHMARK_MAIN();

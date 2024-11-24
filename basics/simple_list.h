@@ -93,7 +93,9 @@ public:
     void reverse() noexcept;
     void sort() noexcept;
 
-    void filter(std::function<bool(T)> const &func) noexcept;
+    void keep_if(std::function<bool(T)> const &func) noexcept;
+    void remove_if(std::function<bool(T)> const &func) noexcept;
+    void remove(T const &value) noexcept;
     void transform(std::function<T(T)> const &func) noexcept;
 
     void clear() noexcept;
@@ -106,6 +108,7 @@ public:
 
 private:
     std::unique_ptr<SimpleNode<T>> _head;
+
     int _size = 0;
     bool _sorted = true;
 
@@ -144,7 +147,7 @@ void SimpleList<T>::clear() noexcept
 template <typename T>
 void SimpleList<T>::reverse() noexcept
 {
-    if (_size <= 1) 
+    if (_size <= 1)
     {
         return; // Already reversed and sorted
     }
@@ -153,7 +156,7 @@ void SimpleList<T>::reverse() noexcept
     std::unique_ptr<SimpleNode<T>> current = std::move(_head);
 
     bool found_unsorted_pair = false;
-    T last_value;  // Keep track of the previous value for sorting check
+    T last_value; // Keep track of the previous value for sorting check
 
     while (current != nullptr)
     {
@@ -173,7 +176,7 @@ void SimpleList<T>::reverse() noexcept
         previous = std::move(current);
         current = std::move(next);
     }
-    
+
     _head = std::move(previous);
     _sorted = !found_unsorted_pair;
 }
@@ -212,7 +215,7 @@ void SimpleList<T>::sort() noexcept
 }
 
 template <typename T>
-void SimpleList<T>::filter(std::function<bool(T)> const &func) noexcept
+void SimpleList<T>::keep_if(std::function<bool(T)> const &func) noexcept
 {
     // Remove elements from the head that don't satisfy the predicate
     while (_head != nullptr && !func(_head->value))
@@ -249,6 +252,20 @@ void SimpleList<T>::filter(std::function<bool(T)> const &func) noexcept
     }
 
     _sorted = sorted_after_filter;
+}
+
+template <typename T>
+void SimpleList<T>::remove_if(std::function<bool(T)> const &func) noexcept
+{
+    keep_if([&func](T x)
+            { return !func(x); });
+}
+
+template <typename T>
+void SimpleList<T>::remove(T const &value) noexcept
+{
+    remove_if([&value](T x)
+              { return x == value; });
 }
 
 template <typename T>

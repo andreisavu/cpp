@@ -12,6 +12,17 @@ TEST(SimpleListTest, PushFrontAndGet)
     EXPECT_THROW(list.head(), std::out_of_range);
 }
 
+TEST(SimpleListTest, Remove)
+{
+    SimpleList<int> list;
+    list.push_front(1);
+    list.push_front(2);
+    list.remove(1);
+    EXPECT_EQ(list.size(), 1);
+    EXPECT_EQ(list.pop_front(), 2);
+    EXPECT_TRUE(list.empty());
+}
+
 TEST(SimpleListTest, OutOfRange)
 {
     SimpleList<int> list;
@@ -116,14 +127,14 @@ TEST(SimpleListTest, Transform)
     EXPECT_EQ(list.pop_front(), 2);
 }
 
-TEST(SimpleListTest, Filter)
+TEST(SimpleListTest, KeepIf)
 {
     SimpleList<int> list;
     list.push_front(1);
     list.push_front(2);
     list.push_front(3);
 
-    list.filter([](int x)
+    list.keep_if([](int x)
                 { return x % 2 == 0; });
 
     EXPECT_EQ(list.size(), 1);
@@ -151,14 +162,14 @@ TEST(SimpleListTest, SortedStateAfterOperations)
                    { return x * 2; });
     EXPECT_TRUE(list.sorted());
 
-    list.filter([](int x)
+    list.keep_if([](int x)
                 { return x % 2 == 0; });
     EXPECT_TRUE(list.sorted());
 
     list.push_front(10);
     EXPECT_FALSE(list.sorted());
 
-    list.filter([](int x)
+    list.keep_if([](int x)
                 { return x != 10; });
     EXPECT_TRUE(list.sorted());
 
