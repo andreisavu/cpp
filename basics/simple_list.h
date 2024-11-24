@@ -88,14 +88,19 @@ public:
 
     void push_front(T value) noexcept;
     T pop_front();
+
+    void push_back(T value) noexcept;
+
     T const &head() const;
 
     void reverse() noexcept;
     void sort() noexcept;
 
     void keep_if(std::function<bool(T)> const &func) noexcept;
+
     void remove_if(std::function<bool(T)> const &func) noexcept;
     void remove(T const &value) noexcept;
+
     void transform(std::function<T(T)> const &func) noexcept;
 
     void clear() noexcept;
@@ -118,12 +123,29 @@ private:
 template <typename T>
 void SimpleList<T>::push_front(T value) noexcept
 {
-    if (_head != nullptr && _head->value < value)
-    {
-        _sorted = false; // The list is no longer sorted
+    if (_head != nullptr) {
+        _sorted &= (_head->value >= value);
     }
     _head = std::make_unique<SimpleNode<T>>(value, std::move(_head));
     ++_size;
+}
+
+template <typename T>
+void SimpleList<T>::push_back(T value) noexcept
+{
+    if (_head == nullptr)
+    {
+        push_front(value);
+        return;
+    }
+    auto current = _head.get();
+    while (current->next != nullptr)
+    {
+        current = current->next.get();
+    }
+    current->next = std::make_unique<SimpleNode<T>>(value, nullptr);
+    ++_size;
+    _sorted &= (current->value <= value);
 }
 
 template <typename T>

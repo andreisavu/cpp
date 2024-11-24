@@ -12,6 +12,24 @@ TEST(SimpleListTest, PushFrontAndGet)
     EXPECT_THROW(list.head(), std::out_of_range);
 }
 
+TEST(SimpleListTest, PushBack)
+{
+    SimpleList<int> list;
+    list.push_back(1);
+    list.push_back(2);
+
+    EXPECT_TRUE(list.sorted());
+    EXPECT_EQ(list.size(), 2);
+    EXPECT_EQ(list.head(), 1);
+
+    EXPECT_EQ(list.pop_front(), 1);
+    EXPECT_EQ(list.size(), 1);
+    EXPECT_EQ(list.pop_front(), 2);
+    
+    EXPECT_TRUE(list.empty());
+    EXPECT_THROW(list.head(), std::out_of_range);
+}
+
 TEST(SimpleListTest, Remove)
 {
     SimpleList<int> list;
