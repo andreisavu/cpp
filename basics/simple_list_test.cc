@@ -212,7 +212,9 @@ TEST(SimpleListTest, SortedStateAfterOperations)
     EXPECT_FALSE(list.sorted());
 
     // Popping the front element always makes the list unsorted
-    // because we there is no way to know if the list was sorted before popping
+    // because we there is no way to know if the list is sorted after popping
+    // the front element
+
     list.pop_front();
     EXPECT_FALSE(list.sorted());
 
