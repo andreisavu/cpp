@@ -21,6 +21,10 @@ cc_binary(
 cc_binary(
     name = "simple_list_benchmark",
     srcs = ["simple_list_benchmark.cc"],
+    copts = [
+        "-O3",
+        "-DNDEBUG",
+    ],
     deps = [
         ":basics",
         "@google_benchmark//:benchmark",
