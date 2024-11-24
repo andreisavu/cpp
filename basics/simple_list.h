@@ -25,6 +25,9 @@ public:
 /**
  * @brief A simple list implementation
  * @tparam T The type of the values in the list
+ * 
+ * This class is not thread-safe. In debug builds, it will actively detect and
+ * report any access from multiple threads by throwing an exception.
  */
 template <typename T>
 class SimpleList
@@ -129,11 +132,32 @@ private:
     bool _sorted = true;
 
     void _merge_sorted(SimpleList<T> &other);
+
+#ifdef _DEBUG
+    mutable std::atomic<int> _thread_id;
+    mutable bool _has_owner = false;
+#endif
+
+    void _check_thread_safety() const
+    {
+#ifdef _DEBUG
+        if (_has_owner && _thread_id != std::this_thread::get_id())
+        {
+            throw std::logic_error("List is not thread-safe");
+        }
+        else if (!_has_owner)
+        {
+            _thread_id = std::this_thread::get_id();
+            _has_owner = true;
+        }
+#endif
+    }
 };
 
 template <typename T>
 void SimpleList<T>::push_front(T value) noexcept
 {
+    _check_thread_safety();
     if (_head != nullptr)
     {
         _sorted &= (_head->value >= value);
@@ -149,6 +173,7 @@ void SimpleList<T>::push_front(T value) noexcept
 template <typename T>
 void SimpleList<T>::push_back(T value) noexcept
 {
+    _check_thread_safety();
     if (_head == nullptr)
     {
         push_front(value);
@@ -163,6 +188,7 @@ void SimpleList<T>::push_back(T value) noexcept
 template <typename T>
 T const &SimpleList<T>::front() const
 {
+    _check_thread_safety();
     if (_head == nullptr)
     {
         throw std::out_of_range("List is empty");
@@ -173,6 +199,7 @@ T const &SimpleList<T>::front() const
 template <typename T>
 T const &SimpleList<T>::back() const
 {
+    _check_thread_safety();
     if (_tail == nullptr)
     {
         throw std::out_of_range("List is empty");
@@ -183,6 +210,7 @@ T const &SimpleList<T>::back() const
 template <typename T>
 void SimpleList<T>::clear() noexcept
 {
+    _check_thread_safety();
     _head = nullptr;
     _tail = nullptr;
     _size = 0;
@@ -192,6 +220,7 @@ void SimpleList<T>::clear() noexcept
 template <typename T>
 void SimpleList<T>::reverse() noexcept
 {
+    _check_thread_safety();
     if (_size <= 1)
     {
         return; // Already reversed and sorted
@@ -230,6 +259,7 @@ void SimpleList<T>::reverse() noexcept
 template <typename T>
 void SimpleList<T>::insert_sorted(T value)
 {
+    _check_thread_safety();
     if (!_sorted)
     {
         throw std::logic_error("List is not sorted");
@@ -255,6 +285,7 @@ void SimpleList<T>::insert_sorted(T value)
 template <typename T>
 void SimpleList<T>::sort() noexcept
 {
+    _check_thread_safety();
     if (_sorted)
     {
         return; // the list is already sorted
@@ -271,6 +302,7 @@ void SimpleList<T>::sort() noexcept
 template <typename T>
 void SimpleList<T>::keep_if(std::function<bool(T)> const &func) noexcept
 {
+    _check_thread_safety();
     // Remove elements from the head that don't satisfy the predicate
     while (_head != nullptr && !func(_head->value))
     {
@@ -333,6 +365,7 @@ void SimpleList<T>::remove(T const &value) noexcept
 template <typename T>
 void SimpleList<T>::transform(std::function<T(T)> const &func) noexcept
 {
+    _check_thread_safety();
     auto current = _head;
     std::shared_ptr<SimpleNode<T>> previous = nullptr;
     bool sorted_after_transform = true;
@@ -352,6 +385,7 @@ void SimpleList<T>::transform(std::function<T(T)> const &func) noexcept
 template <typename T>
 T SimpleList<T>::pop_front()
 {
+    _check_thread_safety();
     if (_head == nullptr)
     {
         throw std::out_of_range("List is empty");
@@ -372,12 +406,14 @@ T SimpleList<T>::pop_front()
 template <typename T>
 bool SimpleList<T>::contains(T const &value) const noexcept
 {
+    _check_thread_safety();
     return std::find(begin(), end(), value) != end();
 }
 
 template <typename T>
 int SimpleList<T>::count_if(std::function<bool(T)> const &func) const noexcept
 {
+    _check_thread_safety();
     int count = 0;
     for (auto it : *this)
     {
@@ -392,6 +428,7 @@ int SimpleList<T>::count_if(std::function<bool(T)> const &func) const noexcept
 template <typename T>
 int SimpleList<T>::count(T const &value) const noexcept
 {
+    _check_thread_safety();
     return count_if([&value](T x)
                     { return x == value; });
 }
@@ -399,6 +436,7 @@ int SimpleList<T>::count(T const &value) const noexcept
 template <typename T>
 void SimpleList<T>::unique() noexcept
 {
+    _check_thread_safety();
     if (_size <= 1)
     {
         return; // Already unique
@@ -423,6 +461,7 @@ void SimpleList<T>::unique() noexcept
 template <typename T>
 void SimpleList<T>::merge(SimpleList<T> &other)
 {
+    _check_thread_safety();
     if (_sorted && other._sorted)
     {
         _merge_sorted(other);
