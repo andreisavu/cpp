@@ -49,3 +49,21 @@ cc_test(
         "@googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "vectors_test",
+    size = "small",
+    srcs = ["vectors_test.cc"],
+    deps = [
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "chunked_vector_test",
+    srcs = ["chunked_vector_test.cc"],
+    deps = [
+        ":basics",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
