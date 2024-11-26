@@ -17,7 +17,7 @@ public:
         chunks_.back().reserve(chunk_size);
     }
 
-    void push_back(const T &value)
+    void pushBack(const T &value)
     {
         // If current chunk is full, create a new one
         if (chunks_.back().size() == chunk_size_)
@@ -32,6 +32,15 @@ public:
 
     T &operator[](size_t index)
     {
+        size_t total_size = 0;
+        for (const auto& chunk : chunks_) {
+            total_size += chunk.size();
+        }
+        
+        if (index >= total_size) {
+            throw std::out_of_range("Index out of bounds");
+        }
+
         size_t chunk_index = index / chunk_size_;
         size_t element_index = index % chunk_size_;
         return chunks_[chunk_index][element_index];
@@ -40,32 +49,33 @@ public:
     // Combines all chunks into a single chunk and adjusts the chunk size
     void pack()
     {
-        if (chunks_.empty()) {
-            return;
-        }
-
         // Calculate total size
         size_t total_size = 0;
         for (const auto& chunk : chunks_) {
             total_size += chunk.size();
         }
 
-        if (total_size == 0) {
-            return;
-        }
+        if (total_size > 0) {
+            // Reuse first chunk's memory instead of creating new vector
+            auto& first_chunk = chunks_[0];
+            first_chunk.reserve(total_size);
 
-        // Create a new chunk with all elements
-        std::vector<T> packed_chunk;
-        packed_chunk.reserve(total_size);
-        
-        for (const auto& chunk : chunks_) {
-            packed_chunk.insert(packed_chunk.end(), chunk.begin(), chunk.end());
-        }
+            // Copy elements from other chunks into first chunk
+            for (size_t i = 1; i < chunks_.size(); i++) {
+                first_chunk.insert(first_chunk.end(), 
+                                 chunks_[i].begin(), 
+                                 chunks_[i].end());
+            }
 
-        // Replace chunks_ with the single packed chunk
-        chunks_.clear();
-        chunks_.push_back(std::move(packed_chunk));
-        chunk_size_ = total_size;
+            // Clear other chunks to deallocate their memory
+            while (chunks_.size() > 1) {
+                chunks_.back().clear();
+                chunks_.back().shrink_to_fit();
+                chunks_.pop_back();
+            }
+
+            chunk_size_ = total_size;
+        }
     }
 
 private:

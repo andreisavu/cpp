@@ -10,15 +10,15 @@ protected:
 
 TEST_F(ChunkedVectorTest, InitializesWithChunkSize) {
     ChunkedVector<int> vec(kDefaultChunkSize);
-    vec.push_back(1);
+    vec.pushBack(1);
     EXPECT_EQ(vec[0], 1);
 }
 
 TEST_F(ChunkedVectorTest, PushBackCreatesNewChunks) {
     ChunkedVector<int> vec(2);
-    vec.push_back(1);
-    vec.push_back(2);
-    vec.push_back(3); // This should create a new chunk
+    vec.pushBack(1);
+    vec.pushBack(2);
+    vec.pushBack(3); // This should create a new chunk
     
     // Test accessing elements across chunks
     EXPECT_EQ(vec[0], 1);
@@ -31,7 +31,7 @@ TEST_F(ChunkedVectorTest, OperatorAccessAcrossChunks) {
     
     // Fill multiple chunks
     for (int i = 0; i < 7; i++) {
-        vec.push_back(i);
+        vec.pushBack(i);
     }
     
     // Test accessing elements in different chunks
@@ -46,9 +46,9 @@ TEST_F(ChunkedVectorTest, OperatorAccessAcrossChunks) {
 
 TEST_F(ChunkedVectorTest, WorksWithDifferentTypes) {
     ChunkedVector<std::string> vec(2);
-    vec.push_back("hello");
-    vec.push_back("world");
-    vec.push_back("!");
+    vec.pushBack("hello");
+    vec.pushBack("world");
+    vec.pushBack("!");
     
     EXPECT_EQ(vec[0], "hello");
     EXPECT_EQ(vec[1], "world");
@@ -61,11 +61,11 @@ TEST_F(ChunkedVectorTest, HandlesLargeChunkSize) {
     
     // Fill first chunk
     for (size_t i = 0; i < kLargeChunkSize; i++) {
-        vec.push_back(i);
+        vec.pushBack(i);
     }
     
     // Add one more to create new chunk
-    vec.push_back(kLargeChunkSize);
+    vec.pushBack(kLargeChunkSize);
     
     // Verify values
     EXPECT_EQ(vec[0], 0);
@@ -78,7 +78,7 @@ TEST_F(ChunkedVectorTest, PackCombinesChunks) {
     
     // Add elements to create multiple chunks
     for (int i = 0; i < 5; i++) {
-        vec.push_back(i);
+        vec.pushBack(i);
     }
     
     // Pack the vector
@@ -99,15 +99,15 @@ TEST_F(ChunkedVectorTest, PackAllowsNewElements) {
     ChunkedVector<int> vec(2);
     
     // Add initial elements
-    vec.push_back(1);
-    vec.push_back(2);
-    vec.push_back(3);
+    vec.pushBack(1);
+    vec.pushBack(2);
+    vec.pushBack(3);
     
     vec.pack();
     
     // Add more elements after packing
-    vec.push_back(4);
-    vec.push_back(5);
+    vec.pushBack(4);
+    vec.pushBack(5);
     
     // Verify all elements
     EXPECT_EQ(vec[0], 1);
