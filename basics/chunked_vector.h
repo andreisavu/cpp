@@ -60,19 +60,17 @@ public:
             auto& first_chunk = chunks_[0];
             first_chunk.reserve(total_size);
 
-            // Copy elements from other chunks into first chunk
+            // Copy elements from other chunks into first chunk and clear them
             for (size_t i = 1; i < chunks_.size(); i++) {
                 first_chunk.insert(first_chunk.end(), 
                                  chunks_[i].begin(), 
                                  chunks_[i].end());
+                chunks_[i].clear();
+                chunks_[i].shrink_to_fit();
             }
 
-            // Clear other chunks to deallocate their memory
-            while (chunks_.size() > 1) {
-                chunks_.back().clear();
-                chunks_.back().shrink_to_fit();
-                chunks_.pop_back();
-            }
+            // Remove the cleared chunks
+            chunks_.resize(1);
 
             chunk_size_ = total_size;
         }
