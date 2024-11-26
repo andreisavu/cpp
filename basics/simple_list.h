@@ -41,17 +41,17 @@ public:
     SimpleList &operator=(const SimpleList &) = delete;
 
     SimpleList(SimpleList &&other) noexcept
-        : _head(other._head), _tail(other._tail), _size(other._size), _sorted_ascending(other._sorted_ascending)
+        : head_(other.head_), tail_(other.tail_), size_(other.size_), sorted_ascending_(other.sorted_ascending_)
     {
         other.clear();
     }
 
     SimpleList &operator=(SimpleList &&other) noexcept
     {
-        _head = other._head;
-        _tail = other._tail;
-        _size = other._size;
-        _sorted_ascending = other._sorted_ascending;
+        head_ = other.head_;
+        tail_ = other.tail_;
+        size_ = other.size_;
+        sorted_ascending_ = other.sorted_ascending_;
         other.clear();
         return *this;
     }
@@ -62,28 +62,28 @@ public:
     class Iterator
     {
     public:
-        Iterator(SimpleNode<T> *node) : current(node) {}
+        Iterator(SimpleNode<T> *node) : current_(node) {}
 
-        T const &operator*() const { return current->value; }
+        T const &operator*() const { return current_->value; }
 
         Iterator &operator++() noexcept
         {
-            current = current->next.get();
+            current_ = current_->next.get();
             return *this;
         }
 
         bool operator!=(Iterator const &other) const noexcept
         {
-            return current != other.current;
+            return current_ != other.current_;
         }
 
     private:
-        SimpleNode<T> *current;
+        SimpleNode<T> *current_;
     };
 
     Iterator begin() const noexcept
     {
-        return Iterator(_head.get());
+        return Iterator(head_.get());
     }
 
     Iterator end() const noexcept
@@ -91,12 +91,12 @@ public:
         return Iterator(nullptr);
     }
 
-    void push_front(T value) noexcept;
-    T pop_front();
+    void pushFront(T value) noexcept;
+    T popFront();
 
-    void push_back(T value) noexcept;
+    void pushBack(T value) noexcept;
 
-    void insert_sorted(T value);
+    void insertSorted(T value);
     void merge(SimpleList<T> &other);
 
     T const &front() const;
@@ -106,128 +106,128 @@ public:
     void sort() noexcept;
     void unique() noexcept;
 
-    void keep_if(std::function<bool(T)> const &func) noexcept;
+    void keepIf(std::function<bool(T)> const &func) noexcept;
 
-    void remove_if(std::function<bool(T)> const &func) noexcept;
+    void removeIf(std::function<bool(T)> const &func) noexcept;
     void remove(T const &value) noexcept;
 
     void transform(std::function<T(T)> const &func) noexcept;
 
     void clear() noexcept;
 
-    int count() const noexcept { return _size; }
-    int count_if(std::function<bool(T)> const &func) const noexcept;
+    int count() const noexcept { return size_; }
+    int countIf(std::function<bool(T)> const &func) const noexcept;
     int count(T const &value) const noexcept;
 
-    bool empty() const noexcept { return _size == 0; }
-    bool sorted_ascending() const noexcept { return _sorted_ascending; }
+    bool empty() const noexcept { return size_ == 0; }
+    bool isSortedAscending() const noexcept { return sorted_ascending_; }
 
     bool contains(T const &value) const noexcept;
 
 private:
-    std::shared_ptr<SimpleNode<T>> _head;
-    std::shared_ptr<SimpleNode<T>> _tail;
+    std::shared_ptr<SimpleNode<T>> head_;
+    std::shared_ptr<SimpleNode<T>> tail_;
 
-    int _size = 0;
-    bool _sorted_ascending = true;
+    int size_ = 0;
+    bool sorted_ascending_ = true;
 
     void _merge_sorted(SimpleList<T> &other);
 
 #ifdef _DEBUG
-    mutable std::atomic<int> _thread_id;
-    mutable bool _has_owner = false;
+    mutable std::atomic<int> thread_id_;
+    mutable bool has_owner_ = false;
 #endif
 
     void _check_thread_safety() const
     {
 #ifdef _DEBUG
-        if (_has_owner && _thread_id != std::this_thread::get_id())
+        if (has_owner_ && thread_id_ != std::this_thread::get_id())
         {
             throw std::logic_error("List is not thread-safe");
         }
         else if (!_has_owner)
         {
-            _thread_id = std::this_thread::get_id();
-            _has_owner = true;
+            thread_id_ = std::this_thread::get_id();
+            has_owner_ = true;
         }
 #endif
     }
 };
 
 template <typename T>
-void SimpleList<T>::push_front(T value) noexcept
+void SimpleList<T>::pushFront(T value) noexcept
 {
     _check_thread_safety();
-    if (_head != nullptr)
+    if (head_ != nullptr)
     {
-        _sorted_ascending &= (_head->value >= value);
+        sorted_ascending_ &= (head_->value >= value);
     }
-    _head = std::make_shared<SimpleNode<T>>(value, _head);
-    if (_tail == nullptr)
+    head_ = std::make_shared<SimpleNode<T>>(value, head_);
+    if (tail_ == nullptr)
     {
-        _tail = _head;
+        tail_ = head_;
     }
-    ++_size;
+    ++size_;
 }
 
 template <typename T>
-void SimpleList<T>::push_back(T value) noexcept
+void SimpleList<T>::pushBack(T value) noexcept
 {
     _check_thread_safety();
-    if (_head == nullptr)
+    if (head_ == nullptr)
     {
-        push_front(value);
+        pushFront(value);
         return;
     }
-    _sorted_ascending &= (_tail->value <= value);
-    _tail->next = std::make_shared<SimpleNode<T>>(value, nullptr);
-    _tail = _tail->next;
-    ++_size;
+    sorted_ascending_ &= (tail_->value <= value);
+    tail_->next = std::make_shared<SimpleNode<T>>(value, nullptr);
+    tail_ = tail_->next;
+    ++size_;
 }
 
 template <typename T>
 T const &SimpleList<T>::front() const
 {
     _check_thread_safety();
-    if (_head == nullptr)
+    if (head_ == nullptr)
     {
         throw std::out_of_range("List is empty");
     }
-    return _head->value;
+    return head_->value;
 }
 
 template <typename T>
 T const &SimpleList<T>::back() const
 {
     _check_thread_safety();
-    if (_tail == nullptr)
+    if (tail_ == nullptr)
     {
         throw std::out_of_range("List is empty");
     }
-    return _tail->value;
+    return tail_->value;
 }
 
 template <typename T>
 void SimpleList<T>::clear() noexcept
 {
     _check_thread_safety();
-    _head = nullptr;
-    _tail = nullptr;
-    _size = 0;
-    _sorted_ascending = true;
+    head_ = nullptr;
+    tail_ = nullptr;
+    size_ = 0;
+    sorted_ascending_ = true;
 }
 
 template <typename T>
 void SimpleList<T>::reverse() noexcept
 {
     _check_thread_safety();
-    if (_size <= 1)
+    if (size_ <= 1)
     {
         return; // Already reversed and sorted
     }
 
     std::shared_ptr<SimpleNode<T>> previous = nullptr;
-    auto current = _head;
+    auto current = head_;
 
     bool found_unsorted_pair = false;
     T last_value; // Keep track of the previous value for sorting check
@@ -251,25 +251,25 @@ void SimpleList<T>::reverse() noexcept
         current = next;
     }
 
-    _tail = _head;
-    _head = previous;
-    _sorted_ascending = !found_unsorted_pair;
+    tail_ = head_;
+    head_ = previous;
+    sorted_ascending_ = !found_unsorted_pair;
 }
 
 template <typename T>
-void SimpleList<T>::insert_sorted(T value)
+void SimpleList<T>::insertSorted(T value)
 {
     _check_thread_safety();
-    if (!_sorted_ascending)
+    if (!sorted_ascending_)
     {
         throw std::logic_error("List is not sorted");
     }
-    if (_head == nullptr || _head->value >= value)
+    if (head_ == nullptr || head_->value >= value)
     {
-        push_front(value);
+        pushFront(value);
         return;
     }
-    auto current = _head.get();
+    auto current = head_.get();
     while (current->next != nullptr && current->next->value < value)
     {
         current = current->next.get();
@@ -277,51 +277,51 @@ void SimpleList<T>::insert_sorted(T value)
     current->next = std::make_shared<SimpleNode<T>>(value, current->next);
     if (current->next->next == nullptr)
     {
-        _tail = current->next;
+        tail_ = current->next;
     }
-    ++_size;
+    ++size_;
 }
 
 template <typename T>
 void SimpleList<T>::sort() noexcept
 {
     _check_thread_safety();
-    if (_sorted_ascending)
+    if (sorted_ascending_)
     {
         return; // the list is already sorted
     }
-    auto current = _head;
+    auto current = head_;
     clear();
     while (current != nullptr)
     {
-        insert_sorted(current->value);
+        insertSorted(current->value);
         current = current->next;
     }
 }
 
 template <typename T>
-void SimpleList<T>::keep_if(std::function<bool(T)> const &func) noexcept
+void SimpleList<T>::keepIf(std::function<bool(T)> const &func) noexcept
 {
     _check_thread_safety();
     // Remove elements from the head that don't satisfy the predicate
-    while (_head != nullptr && !func(_head->value))
+    while (head_ != nullptr && !func(head_->value))
     {
-        _head = _head->next;
-        --_size;
+        head_ = head_->next;
+        --size_;
     }
-    if (_head == nullptr)
+    if (head_ == nullptr)
     {
-        _tail = nullptr;
-        _sorted_ascending = true;
+        tail_ = nullptr;
+        sorted_ascending_ = true;
         return;
     }
-    if (_size == 1)
+    if (size_ == 1)
     {
-        _sorted_ascending = true;
+        sorted_ascending_ = true;
         return;
     }
 
-    auto previous = _head;
+    auto previous = head_;
     auto current = previous->next;
     bool sorted_after_filter = true;
 
@@ -331,7 +331,7 @@ void SimpleList<T>::keep_if(std::function<bool(T)> const &func) noexcept
         {
             previous->next = current->next;
             current = previous->next;
-            --_size;
+            --size_;
         }
         else
         {
@@ -343,22 +343,22 @@ void SimpleList<T>::keep_if(std::function<bool(T)> const &func) noexcept
     }
     if (previous != nullptr)
     {
-        _tail = previous;
+        tail_ = previous;
     }
-    _sorted_ascending = sorted_after_filter;
+    sorted_ascending_ = sorted_after_filter;
 }
 
 template <typename T>
-void SimpleList<T>::remove_if(std::function<bool(T)> const &func) noexcept
+void SimpleList<T>::removeIf(std::function<bool(T)> const &func) noexcept
 {
-    keep_if([&func](T x)
+    keepIf([&func](T x)
             { return !func(x); });
 }
 
 template <typename T>
 void SimpleList<T>::remove(T const &value) noexcept
 {
-    remove_if([&value](T x)
+    removeIf([&value](T x)
               { return x == value; });
 }
 
@@ -366,7 +366,7 @@ template <typename T>
 void SimpleList<T>::transform(std::function<T(T)> const &func) noexcept
 {
     _check_thread_safety();
-    auto current = _head;
+    auto current = head_;
     std::shared_ptr<SimpleNode<T>> previous = nullptr;
     bool sorted_after_transform = true;
     while (current != nullptr)
@@ -379,24 +379,24 @@ void SimpleList<T>::transform(std::function<T(T)> const &func) noexcept
         previous = current;
         current = current->next;
     }
-    _sorted_ascending = sorted_after_transform;
+    sorted_ascending_ = sorted_after_transform;
 }
 
 template <typename T>
-T SimpleList<T>::pop_front()
+T SimpleList<T>::popFront()
 {
     _check_thread_safety();
-    if (_head == nullptr)
+    if (head_ == nullptr)
     {
         throw std::out_of_range("List is empty");
     }
     auto value = front();
-    _head = _head->next;
-    if (_head == nullptr)
+    head_ = head_->next;
+    if (head_ == nullptr)
     {
-        _tail = nullptr;
+        tail_ = nullptr;
     }
-    --_size;
+    --size_;
     // Popping the front element doesn't change the sorted state because we don't
     // know if the list would have been sorted after popping. If the list was
     // sorted before popping, it is still sorted after popping.
@@ -411,7 +411,7 @@ bool SimpleList<T>::contains(T const &value) const noexcept
 }
 
 template <typename T>
-int SimpleList<T>::count_if(std::function<bool(T)> const &func) const noexcept
+int SimpleList<T>::countIf(std::function<bool(T)> const &func) const noexcept
 {
     _check_thread_safety();
     int count = 0;
@@ -429,7 +429,7 @@ template <typename T>
 int SimpleList<T>::count(T const &value) const noexcept
 {
     _check_thread_safety();
-    return count_if([&value](T x)
+    return countIf([&value](T x)
                     { return x == value; });
 }
 
@@ -437,32 +437,32 @@ template <typename T>
 void SimpleList<T>::unique() noexcept
 {
     _check_thread_safety();
-    if (_size <= 1)
+    if (size_ <= 1)
     {
         return; // Already unique
     }
     sort(); // Sorting is required to make sure duplicates are adjacent
-    auto current = _head;
+    auto current = head_;
     while (current->next != nullptr)
     {
         if (current->value == current->next->value)
         {
             current->next = current->next->next;
-            --_size;
+            --size_;
         }
         else
         {
             current = current->next;
         }
     }
-    _tail = current;
+    tail_ = current;
 }
 
 template <typename T>
 void SimpleList<T>::merge(SimpleList<T> &other)
 {
     _check_thread_safety();
-    if (_sorted_ascending && other._sorted_ascending)
+    if (sorted_ascending_ && other.sorted_ascending_)
     {
         _merge_sorted(other);
         return;
@@ -475,17 +475,17 @@ void SimpleList<T>::merge(SimpleList<T> &other)
     {
         return;
     }
-    if (_head == nullptr)
+    if (head_ == nullptr)
     {
-        _head = other._head;
+        head_ = other.head_;
     }
     else
     {
-        _tail->next = other._head;
+        tail_->next = other.head_;
     }
-    _tail = other._tail;
-    _size += other._size;
-    _sorted_ascending = false; // Merging two lists invalidates the sorted state
+    tail_ = other.tail_;
+    size_ += other.size_;
+    sorted_ascending_ = false; // Merging two lists invalidates the sorted state
 
     other.clear();
 }
@@ -498,42 +498,42 @@ void SimpleList<T>::_merge_sorted(SimpleList<T> &other)
         return;
     }
     // If this list is empty, copy the other list
-    if (_head == nullptr)
+    if (head_ == nullptr)
     {
-        _head = other._head;
-        _tail = other._tail;
-        _size = other._size;
-        _sorted_ascending = other._sorted_ascending;
+        head_ = other.head_;
+        tail_ = other.tail_;
+        size_ = other.size_;
+        sorted_ascending_ = other.sorted_ascending_;
         other.clear();
         return;
     }
     // Both lists are non-empty, merge them while maintaining the sorted state
-    auto current = _head;
-    auto other_current = other._head;
+    auto current = head_;
+    auto other_current = other.head_;
     clear(); // Clear this list before merging
     while (current != nullptr && other_current != nullptr)
     {
         if (current->value < other_current->value)
         {
-            push_back(current->value);
+            pushBack(current->value);
             current = current->next;
         }
         else
         {
-            push_back(other_current->value);
+            pushBack(other_current->value);
             other_current = other_current->next;
         }
     }
     // Append the remaining elements from this list
     while (current != nullptr)
     {
-        push_back(current->value);
+        pushBack(current->value);
         current = current->next;
     }
     // Append the remaining elements from the other list
     while (other_current != nullptr)
     {
-        push_back(other_current->value);
+        pushBack(other_current->value);
         other_current = other_current->next;
     }
     other.clear();

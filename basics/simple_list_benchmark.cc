@@ -8,7 +8,7 @@ static void BM_SimpleListPushFront(benchmark::State &state)
         SimpleList<int> list;
         for (int i = 0; i < state.range(0); ++i)
         {
-            list.push_front(i);
+            list.pushFront(i);
         }
     }
 }
@@ -21,7 +21,7 @@ static void BM_SimpleListPushBack(benchmark::State &state)
         SimpleList<int> list;
         for (int i = 0; i < state.range(0); ++i)
         {
-            list.push_back(i);
+            list.pushBack(i);
         }
     }
 }
@@ -35,13 +35,13 @@ static void BM_SimpleListPopFront(benchmark::State &state)
         SimpleList<int> list;
         for (int i = 0; i < state.range(0); ++i)
         {
-            list.push_front(i);
+            list.pushFront(i);
         }
         state.ResumeTiming();
 
         while (!list.empty())
         {
-            list.pop_front();
+            list.popFront();
         }
     }
 }
@@ -55,7 +55,7 @@ static void BM_SimpleListTransform(benchmark::State &state)
         SimpleList<int> list;
         for (int i = 0; i < state.range(0); ++i)
         {
-            list.push_front(i);
+            list.pushFront(i);
         }
         state.ResumeTiming();
 
@@ -73,11 +73,11 @@ static void BM_SimpleListKeepIf(benchmark::State &state)
         SimpleList<int> list;
         for (int i = 0; i < state.range(0); ++i)
         {
-            list.push_front(i);
+            list.pushFront(i);
         }
         state.ResumeTiming();
 
-        list.keep_if([](int x)
+        list.keepIf([](int x)
                     { return x % 2 == 0; });
     }
 }
