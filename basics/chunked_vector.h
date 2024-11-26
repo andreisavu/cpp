@@ -37,6 +37,37 @@ public:
         return chunks_[chunk_index][element_index];
     }
 
+    // Combines all chunks into a single chunk and adjusts the chunk size
+    void pack()
+    {
+        if (chunks_.empty()) {
+            return;
+        }
+
+        // Calculate total size
+        size_t total_size = 0;
+        for (const auto& chunk : chunks_) {
+            total_size += chunk.size();
+        }
+
+        if (total_size == 0) {
+            return;
+        }
+
+        // Create a new chunk with all elements
+        std::vector<T> packed_chunk;
+        packed_chunk.reserve(total_size);
+        
+        for (const auto& chunk : chunks_) {
+            packed_chunk.insert(packed_chunk.end(), chunk.begin(), chunk.end());
+        }
+
+        // Replace chunks_ with the single packed chunk
+        chunks_.clear();
+        chunks_.push_back(std::move(packed_chunk));
+        chunk_size_ = total_size;
+    }
+
 private:
     size_t chunk_size_;
     std::vector<std::vector<T>> chunks_;

@@ -73,4 +73,48 @@ TEST_F(ChunkedVectorTest, HandlesLargeChunkSize) {
     EXPECT_EQ(vec[kLargeChunkSize], kLargeChunkSize);
 }
 
+TEST_F(ChunkedVectorTest, PackCombinesChunks) {
+    ChunkedVector<int> vec(2);  // Small chunk size to force multiple chunks
+    
+    // Add elements to create multiple chunks
+    for (int i = 0; i < 5; i++) {
+        vec.push_back(i);
+    }
+    
+    // Pack the vector
+    vec.pack();
+    
+    // Verify all elements are still accessible and in correct order
+    for (int i = 0; i < 5; i++) {
+        EXPECT_EQ(vec[i], i);
+    }
+}
+
+TEST_F(ChunkedVectorTest, PackHandlesEmptyVector) {
+    ChunkedVector<int> vec(3);
+    vec.pack();  // Should not crash
+}
+
+TEST_F(ChunkedVectorTest, PackAllowsNewElements) {
+    ChunkedVector<int> vec(2);
+    
+    // Add initial elements
+    vec.push_back(1);
+    vec.push_back(2);
+    vec.push_back(3);
+    
+    vec.pack();
+    
+    // Add more elements after packing
+    vec.push_back(4);
+    vec.push_back(5);
+    
+    // Verify all elements
+    EXPECT_EQ(vec[0], 1);
+    EXPECT_EQ(vec[1], 2);
+    EXPECT_EQ(vec[2], 3);
+    EXPECT_EQ(vec[3], 4);
+    EXPECT_EQ(vec[4], 5);
+}
+
 } // namespace
