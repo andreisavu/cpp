@@ -117,4 +117,16 @@ TEST_F(ChunkedVectorTest, PackAllowsNewElements) {
     EXPECT_EQ(vec[4], 5);
 }
 
+TEST_F(ChunkedVectorTest, SplitCreatesNewChunks) {
+    ChunkedVector<int> vec(2);
+    vec.pushBack(1);
+    vec.pushBack(2);
+    vec.pushBack(3);
+    vec.split(3);
+
+    EXPECT_EQ(vec[0], 1);
+    EXPECT_EQ(vec[1], 2);
+    EXPECT_EQ(vec[2], 3);
+}
+
 } // namespace

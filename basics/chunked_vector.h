@@ -49,6 +49,11 @@ public:
     // Combines all chunks into a single chunk and adjusts the chunk size
     void pack()
     {
+        // Early return if no chunks or only one chunk
+        if (chunks_.empty() || chunks_.size() == 1) {
+            return;
+        }
+
         // Calculate total size
         size_t total_size = 0;
         for (const auto& chunk : chunks_) {
@@ -74,6 +79,32 @@ public:
 
             chunk_size_ = total_size;
         }
+    }
+
+    // Splits the vector into smaller chunks
+    void split(size_t new_chunk_size)
+    {
+        if (new_chunk_size == chunk_size_) {
+            return; // Early return if no change
+        }
+
+        auto previous_chunks = chunks_;
+
+        chunk_size_ = new_chunk_size;
+        clear();
+
+        for (const auto& chunk : previous_chunks) {
+            for (const auto& value : chunk) {
+                pushBack(value);
+            }
+        }
+    }
+
+    // Clears the vector and creates and pre-allocates chunk with the current chunk size
+    void clear()
+    {
+        chunks_.clear();
+        chunks_.push_back(std::vector<T>(0, T(), chunk_size_));
     }
 
 private:
